@@ -135,6 +135,7 @@ label {
 }
 
 input,
+select,
 textarea {
     width: 100%;
     border: 1px solid var(--border);
@@ -147,6 +148,7 @@ textarea {
 }
 
 input:focus,
+select:focus,
 textarea:focus {
     border-color: var(--accent);
     box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.14);

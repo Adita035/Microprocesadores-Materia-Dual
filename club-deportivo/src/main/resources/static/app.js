@@ -112,6 +112,20 @@ document.querySelector("#loginForm").addEventListener("submit", async (event) =>
     }
 });
 
+document.querySelector("#userForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const title = "Crear usuario";
+    try {
+        const result = await request("/api/usuarios", {
+            method: "POST",
+            body: formToJson(event.currentTarget),
+        });
+        printResult(title, result);
+    } catch (error) {
+        printError(title, error);
+    }
+});
+
 document.querySelector("#healthBtn").addEventListener("click", async () => {
     const title = "Health";
     try {

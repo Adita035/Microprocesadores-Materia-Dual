@@ -9,4 +9,5 @@ import reactor.core.publisher.Mono
 interface UsuarioRepository : ReactiveCrudRepository<Usuario, Long> {
     fun findByCorreo(correo: String): Mono<Usuario>
     fun existsByCorreo(correo: String): Mono<Boolean>
+    fun existsByRolId(rolId: Long): Mono<Boolean>
 }

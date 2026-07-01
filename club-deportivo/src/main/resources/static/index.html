@@ -75,6 +75,50 @@
         <section class="panel wide">
             <div class="panelHeader">
                 <div>
+                    <h2>Crear usuario con rol</h2>
+                    <p>Endpoint protegido: POST /api/usuarios</p>
+                </div>
+                <span class="method">POST</span>
+            </div>
+
+            <form id="userForm" class="form">
+                <label>
+                    Nombre
+                    <input name="nombre" autocomplete="given-name" required value="Usuario">
+                </label>
+                <label>
+                    Apellido
+                    <input name="apellido" autocomplete="family-name" required value="Prueba">
+                </label>
+                <label>
+                    Correo
+                    <input name="correo" type="email" autocomplete="email" required value="usuario@club.test">
+                </label>
+                <label>
+                    Telefono
+                    <input name="telefono" autocomplete="tel" value="5550001111">
+                </label>
+                <label>
+                    Password
+                    <input name="password" type="password" autocomplete="new-password" required minlength="6" value="123456">
+                </label>
+                <label>
+                    Rol
+                    <select name="rol" required>
+                        <option value="USUARIO">USUARIO</option>
+                        <option value="TRABAJADOR">TRABAJADOR</option>
+                        <option value="ENTRENADOR">ENTRENADOR</option>
+                        <option value="ADMINISTRADOR">ADMINISTRADOR</option>
+                        <option value="SOPORTE_TECNICO">SOPORTE_TECNICO</option>
+                    </select>
+                </label>
+                <button type="submit">Crear usuario</button>
+            </form>
+        </section>
+
+        <section class="panel wide">
+            <div class="panelHeader">
+                <div>
                     <h2>Endpoints protegidos</h2>
                     <p>Se envian con Authorization: Bearer &lt;token&gt;</p>
                 </div>

@@ -37,6 +37,27 @@ data class CrearAdminRequest(
     val password: String,
 )
 
+data class CrearUsuarioRequest(
+    @field:NotBlank
+    val nombre: String,
+
+    @field:NotBlank
+    val apellido: String,
+
+    @field:Email
+    @field:NotBlank
+    val correo: String,
+
+    val telefono: String? = null,
+
+    @field:NotBlank
+    @field:Size(min = 6)
+    val password: String,
+
+    @field:NotBlank
+    val rol: String,
+)
+
 data class UsuarioResponse(
     val id: Long,
     val nombre: String,

@@ -22,6 +22,11 @@ class GlobalExceptionHandler {
         ResponseEntity.status(HttpStatus.CONFLICT)
             .body(ApiError(exception.message ?: "El recurso ya existe"))
 
+    @ExceptionHandler(BadRequestException::class)
+    fun handleBadRequestException(exception: BadRequestException): ResponseEntity<ApiError> =
+        ResponseEntity.badRequest()
+            .body(ApiError(exception.message ?: "Solicitud invalida"))
+
     @ExceptionHandler(WebExchangeBindException::class)
     fun handleValidationException(exception: WebExchangeBindException): ResponseEntity<ApiError> =
         ResponseEntity.badRequest()
