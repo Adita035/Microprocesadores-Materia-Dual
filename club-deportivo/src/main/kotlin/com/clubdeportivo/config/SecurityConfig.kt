@@ -28,6 +28,7 @@ class SecurityConfig {
             .httpBasic { it.disable() }
             .formLogin { it.disable() }
             .authorizeExchange {
+                it.pathMatchers("/", "/index.html", "/styles.css", "/app.js", "/favicon.ico").permitAll()
                 it.pathMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                 it.pathMatchers(HttpMethod.POST, "/api/usuarios/admin").permitAll()
                 it.pathMatchers("/actuator/health").permitAll()

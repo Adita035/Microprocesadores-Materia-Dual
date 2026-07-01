@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Club Deportivo - Pruebas API</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <header class="topbar">
+        <div>
+            <p class="eyebrow">Club Deportivo</p>
+            <h1>Panel de pruebas del backend</h1>
+        </div>
+        <div class="status" id="sessionStatus">Sin sesion</div>
+    </header>
+
+    <main class="layout">
+        <section class="panel">
+            <div class="panelHeader">
+                <div>
+                    <h2>Crear administrador</h2>
+                    <p>Endpoint publico: POST /api/usuarios/admin</p>
+                </div>
+                <span class="method">POST</span>
+            </div>
+
+            <form id="adminForm" class="form">
+                <label>
+                    Nombre
+                    <input name="nombre" autocomplete="given-name" required value="Admin">
+                </label>
+                <label>
+                    Apellido
+                    <input name="apellido" autocomplete="family-name" required value="Principal">
+                </label>
+                <label>
+                    Correo
+                    <input name="correo" type="email" autocomplete="email" required value="admin@club.test">
+                </label>
+                <label>
+                    Telefono
+                    <input name="telefono" autocomplete="tel" value="5551234567">
+                </label>
+                <label>
+                    Password
+                    <input name="password" type="password" autocomplete="new-password" required minlength="6" value="123456">
+                </label>
+                <button type="submit">Crear admin</button>
+            </form>
+        </section>
+
+        <section class="panel">
+            <div class="panelHeader">
+                <div>
+                    <h2>Iniciar sesion</h2>
+                    <p>Endpoint publico: POST /api/auth/login</p>
+                </div>
+                <span class="method">POST</span>
+            </div>
+
+            <form id="loginForm" class="form">
+                <label>
+                    Correo
+                    <input name="correo" type="email" autocomplete="email" required value="admin@club.test">
+                </label>
+                <label>
+                    Password
+                    <input name="password" type="password" autocomplete="current-password" required value="123456">
+                </label>
+                <button type="submit">Entrar y guardar token</button>
+            </form>
+        </section>
+
+        <section class="panel wide">
+            <div class="panelHeader">
+                <div>
+                    <h2>Endpoints protegidos</h2>
+                    <p>Se envian con Authorization: Bearer &lt;token&gt;</p>
+                </div>
+                <span class="method get">GET</span>
+            </div>
+
+            <div class="actions">
+                <button id="healthBtn" type="button">Probar health</button>
+                <button id="usersBtn" type="button">Listar usuarios</button>
+                <button id="clearTokenBtn" type="button" class="secondary">Limpiar token</button>
+            </div>
+
+            <label class="tokenBox">
+                Token actual
+                <textarea id="tokenView" spellcheck="false" placeholder="Aqui aparecera el JWT despues del login"></textarea>
+            </label>
+        </section>
+
+        <section class="panel wide">
+            <div class="panelHeader">
+                <div>
+                    <h2>Respuesta del backend</h2>
+                    <p>Codigo HTTP, headers relevantes y JSON recibido</p>
+                </div>
+            </div>
+            <pre id="output" class="output">Esperando una prueba...</pre>
+        </section>
+    </main>
+
+    <script src="/app.js"></script>
+</body>
+</html>

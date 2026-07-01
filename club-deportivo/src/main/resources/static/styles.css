@@ -1,0 +1,237 @@
+:root {
+    color-scheme: light;
+    --bg: #f6f7f9;
+    --panel: #ffffff;
+    --text: #16202a;
+    --muted: #607080;
+    --border: #d9e0e7;
+    --accent: #0f766e;
+    --accent-dark: #115e59;
+    --danger: #b42318;
+    --ok-bg: #e8f7f4;
+    --shadow: 0 12px 32px rgba(22, 32, 42, 0.08);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 28px clamp(18px, 4vw, 48px);
+    background: #ffffff;
+    border-bottom: 1px solid var(--border);
+}
+
+.eyebrow {
+    margin: 0 0 4px;
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+    margin: 0;
+}
+
+h1 {
+    font-size: clamp(24px, 3vw, 36px);
+    line-height: 1.15;
+}
+
+h2 {
+    font-size: 18px;
+}
+
+.status {
+    min-width: 130px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--muted);
+    text-align: center;
+    font-weight: 700;
+}
+
+.status.active {
+    border-color: #8fd4c9;
+    background: var(--ok-bg);
+    color: var(--accent-dark);
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    width: min(1180px, calc(100% - 32px));
+    margin: 24px auto 40px;
+}
+
+.panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+}
+
+.wide {
+    grid-column: 1 / -1;
+}
+
+.panelHeader {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.panelHeader p {
+    margin-top: 5px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.method {
+    align-self: flex-start;
+    border-radius: 6px;
+    background: #eef6f5;
+    color: var(--accent-dark);
+    padding: 6px 8px;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.method.get {
+    background: #eef3ff;
+    color: #25498f;
+}
+
+.form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+label {
+    display: grid;
+    gap: 7px;
+    color: #334150;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+input,
+textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #ffffff;
+    color: var(--text);
+    font: inherit;
+    padding: 11px 12px;
+    outline: none;
+}
+
+input:focus,
+textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.14);
+}
+
+button {
+    min-height: 42px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #ffffff;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 800;
+    padding: 0 16px;
+}
+
+button:hover {
+    background: var(--accent-dark);
+}
+
+button.secondary {
+    background: #e8edf2;
+    color: #263442;
+}
+
+button.secondary:hover {
+    background: #d8e0e8;
+}
+
+.form button {
+    grid-column: 1 / -1;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.tokenBox textarea {
+    min-height: 96px;
+    resize: vertical;
+    font-family: "Cascadia Mono", Consolas, monospace;
+    font-size: 13px;
+}
+
+.output {
+    min-height: 240px;
+    max-height: 520px;
+    overflow: auto;
+    margin: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #101820;
+    color: #d6f5ee;
+    padding: 16px;
+    font-family: "Cascadia Mono", Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+}
+
+.error {
+    color: var(--danger);
+}
+
+@media (max-width: 760px) {
+    .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .status {
+        width: 100%;
+        text-align: left;
+    }
+
+    .layout,
+    .form {
+        grid-template-columns: 1fr;
+    }
+
+    .panelHeader {
+        flex-direction: column;
+    }
+}
