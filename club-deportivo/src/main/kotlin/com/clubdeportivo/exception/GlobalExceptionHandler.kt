@@ -27,6 +27,11 @@ class GlobalExceptionHandler {
         ResponseEntity.badRequest()
             .body(ApiError(exception.message ?: "Solicitud invalida"))
 
+    @ExceptionHandler(NotFoundException::class)
+    fun handleNotFoundException(exception: NotFoundException): ResponseEntity<ApiError> =
+        ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(ApiError(exception.message ?: "Recurso no encontrado"))
+
     @ExceptionHandler(WebExchangeBindException::class)
     fun handleValidationException(exception: WebExchangeBindException): ResponseEntity<ApiError> =
         ResponseEntity.badRequest()

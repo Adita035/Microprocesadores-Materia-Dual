@@ -28,7 +28,13 @@ function formToJson(form) {
     return Object.fromEntries(
         Array.from(data.entries())
             .filter(([, value]) => String(value).trim() !== "")
-            .map(([key, value]) => [key, String(value).trim()]),
+            .map(([key, value]) => {
+                const normalizedValue = String(value).trim();
+                if (["usuarioId", "salario"].includes(key)) {
+                    return [key, Number(normalizedValue)];
+                }
+                return [key, normalizedValue];
+            }),
     );
 }
 
@@ -126,6 +132,20 @@ document.querySelector("#userForm").addEventListener("submit", async (event) => 
     }
 });
 
+document.querySelector("#workerForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const title = "Crear trabajador";
+    try {
+        const result = await request("/api/trabajadores", {
+            method: "POST",
+            body: formToJson(event.currentTarget),
+        });
+        printResult(title, result);
+    } catch (error) {
+        printError(title, error);
+    }
+});
+
 document.querySelector("#healthBtn").addEventListener("click", async () => {
     const title = "Health";
     try {
@@ -139,6 +159,15 @@ document.querySelector("#usersBtn").addEventListener("click", async () => {
     const title = "Listar usuarios";
     try {
         printResult(title, await request("/api/usuarios"));
+    } catch (error) {
+        printError(title, error);
+    }
+});
+
+document.querySelector("#workersBtn").addEventListener("click", async () => {
+    const title = "Listar trabajadores";
+    try {
+        printResult(title, await request("/api/trabajadores"));
     } catch (error) {
         printError(title, error);
     }
