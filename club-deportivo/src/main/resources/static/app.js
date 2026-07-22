@@ -30,7 +30,7 @@ function formToJson(form) {
             .filter(([, value]) => String(value).trim() !== "")
             .map(([key, value]) => {
                 const normalizedValue = String(value).trim();
-                if (["usuarioId", "salario"].includes(key)) {
+                if (["usuarioId"].includes(key)) {
                     return [key, Number(normalizedValue)];
                 }
                 return [key, normalizedValue];
@@ -132,11 +132,11 @@ document.querySelector("#userForm").addEventListener("submit", async (event) => 
     }
 });
 
-document.querySelector("#workerForm").addEventListener("submit", async (event) => {
+document.querySelector("#trainerForm").addEventListener("submit", async (event) => {
     event.preventDefault();
-    const title = "Crear trabajador";
+    const title = "Crear entrenador";
     try {
-        const result = await request("/api/trabajadores", {
+        const result = await request("/api/entrenadores", {
             method: "POST",
             body: formToJson(event.currentTarget),
         });
@@ -164,10 +164,10 @@ document.querySelector("#usersBtn").addEventListener("click", async () => {
     }
 });
 
-document.querySelector("#workersBtn").addEventListener("click", async () => {
-    const title = "Listar trabajadores";
+document.querySelector("#trainersBtn").addEventListener("click", async () => {
+    const title = "Listar entrenadores";
     try {
-        printResult(title, await request("/api/trabajadores"));
+        printResult(title, await request("/api/entrenadores"));
     } catch (error) {
         printError(title, error);
     }
