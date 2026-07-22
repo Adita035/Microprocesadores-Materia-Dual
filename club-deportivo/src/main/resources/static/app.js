@@ -2,6 +2,7 @@ const tokenKey = "clubDeportivoJwt";
 const output = document.querySelector("#output");
 const tokenView = document.querySelector("#tokenView");
 const sessionStatus = document.querySelector("#sessionStatus");
+const sessionCard = document.querySelector(".sessionCard");
 
 function getToken() {
     return localStorage.getItem(tokenKey) || "";
@@ -20,7 +21,7 @@ function renderToken() {
     const token = getToken();
     tokenView.value = token;
     sessionStatus.textContent = token ? "Token activo" : "Sin sesion";
-    sessionStatus.classList.toggle("active", Boolean(token));
+    sessionCard.classList.toggle("active", Boolean(token));
 }
 
 function formToJson(form) {

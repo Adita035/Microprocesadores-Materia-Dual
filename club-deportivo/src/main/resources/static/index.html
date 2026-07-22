@@ -3,169 +3,211 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Club Deportivo - Pruebas API</title>
+    <title>Club Deportivo - Centro de Gestion</title>
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-    <header class="topbar">
-        <div>
-            <p class="eyebrow">Club Deportivo</p>
-            <h1>Panel de pruebas del backend</h1>
+    <aside class="sidebar" aria-label="Navegacion principal">
+        <a class="brand" href="#dashboard" aria-label="Club Deportivo">
+            <span class="brandMark">CD</span>
+            <span>
+                <strong>Club Deportivo</strong>
+                <small>Centro de Gestion</small>
+            </span>
+        </a>
+
+        <nav class="nav">
+            <a href="#dashboard" class="active">Panel</a>
+            <a href="#operacion">Operacion</a>
+            <a href="#usuarios">Usuarios</a>
+            <a href="#entrenadores">Entrenadores</a>
+            <a href="#reportes">Reportes</a>
+        </nav>
+
+        <div class="sessionCard">
+            <span class="statusDot"></span>
+            <div>
+                <p id="sessionStatus">Sin sesion</p>
+                <small>JWT local</small>
+            </div>
         </div>
-        <div class="status" id="sessionStatus">Sin sesion</div>
-    </header>
+    </aside>
 
-    <main class="layout">
-        <section class="panel">
-            <div class="panelHeader">
-                <div>
-                    <h2>Crear administrador</h2>
-                    <p>Endpoint publico: POST /api/usuarios/admin</p>
+    <main class="shell">
+        <section id="dashboard" class="hero">
+            <div class="heroContent">
+                <p class="eyebrow">Sistema integral</p>
+                <h1>Gestion premium para operaciones deportivas.</h1>
+                <p class="heroCopy">Usuarios, entrenadores, actividades, instalaciones, incidencias y reportes centralizados en una sola plataforma.</p>
+                <div class="heroActions">
+                    <a class="button primary" href="#usuarios">Gestionar usuarios</a>
+                    <a class="button ghost" href="#operacion">Ver modulos</a>
                 </div>
-                <span class="method">POST</span>
             </div>
 
-            <form id="adminForm" class="form">
-                <label>
-                    Nombre
-                    <input name="nombre" autocomplete="given-name" required value="Admin">
-                </label>
-                <label>
-                    Apellido
-                    <input name="apellido" autocomplete="family-name" required value="Principal">
-                </label>
-                <label>
-                    Correo
-                    <input name="correo" type="email" autocomplete="email" required value="admin@club.test">
-                </label>
-                <label>
-                    Telefono
-                    <input name="telefono" autocomplete="tel" value="5551234567">
-                </label>
-                <label>
-                    Password
-                    <input name="password" type="password" autocomplete="new-password" required minlength="6" value="123456">
-                </label>
-                <button type="submit">Crear admin</button>
-            </form>
+            <div class="heroStats" aria-label="Indicadores principales">
+                <article>
+                    <span>Usuarios</span>
+                    <strong>100+</strong>
+                </article>
+                <article>
+                    <span>Trabajadores</span>
+                    <strong>50</strong>
+                </article>
+                <article>
+                    <span>Control</span>
+                    <strong>24/7</strong>
+                </article>
+            </div>
         </section>
 
-        <section class="panel">
-            <div class="panelHeader">
+        <section id="operacion" class="section">
+            <div class="sectionHeader">
                 <div>
-                    <h2>Iniciar sesion</h2>
-                    <p>Endpoint publico: POST /api/auth/login</p>
+                    <p class="eyebrow">Operacion del club</p>
+                    <h2>Modulos principales</h2>
                 </div>
-                <span class="method">POST</span>
+                <button id="healthBtn" type="button" class="button compact">Estado API</button>
             </div>
 
-            <form id="loginForm" class="form">
-                <label>
-                    Correo
-                    <input name="correo" type="email" autocomplete="email" required value="admin@club.test">
-                </label>
-                <label>
-                    Password
-                    <input name="password" type="password" autocomplete="current-password" required value="123456">
-                </label>
-                <button type="submit">Entrar y guardar token</button>
-            </form>
+            <div class="moduleGrid">
+                <article class="moduleCard ready">
+                    <span class="moduleIcon">01</span>
+                    <h3>Autenticacion</h3>
+                    <p>Login, JWT y control de acceso por roles.</p>
+                </article>
+                <article class="moduleCard ready">
+                    <span class="moduleIcon">02</span>
+                    <h3>Usuarios</h3>
+                    <p>Alta, consulta y administracion por perfil.</p>
+                </article>
+                <article class="moduleCard ready">
+                    <span class="moduleIcon">03</span>
+                    <h3>Entrenadores</h3>
+                    <p>Ficha conectada al usuario con rol entrenador.</p>
+                </article>
+                <article class="moduleCard">
+                    <span class="moduleIcon">04</span>
+                    <h3>Actividades</h3>
+                    <p>Programacion, asignacion y cierre de sesiones.</p>
+                </article>
+                <article class="moduleCard">
+                    <span class="moduleIcon">05</span>
+                    <h3>Instalaciones</h3>
+                    <p>Disponibilidad y solicitudes operativas.</p>
+                </article>
+                <article class="moduleCard">
+                    <span class="moduleIcon">06</span>
+                    <h3>Incidencias</h3>
+                    <p>Seguimiento tecnico y mantenimiento.</p>
+                </article>
+            </div>
         </section>
 
-        <section class="panel wide">
-            <div class="panelHeader">
-                <div>
-                    <h2>Crear ficha de entrenador</h2>
-                    <p>Endpoint protegido: POST /api/entrenadores</p>
+        <section class="workspace">
+            <div id="usuarios" class="panel authPanel">
+                <div class="panelHeader">
+                    <div>
+                        <p class="eyebrow">Acceso</p>
+                        <h2>Sesion administrativa</h2>
+                    </div>
+                    <span class="pill">JWT</span>
                 </div>
-                <span class="method">POST</span>
+
+                <div class="splitForms">
+                    <form id="adminForm" class="form">
+                        <h3>Primer administrador</h3>
+                        <label>Nombre<input name="nombre" autocomplete="given-name" required value="Admin"></label>
+                        <label>Apellido<input name="apellido" autocomplete="family-name" required value="Principal"></label>
+                        <label>Correo<input name="correo" type="email" autocomplete="email" required value="admin@club.test"></label>
+                        <label>Telefono<input name="telefono" autocomplete="tel" value="5551234567"></label>
+                        <label>Password<input name="password" type="password" autocomplete="new-password" required minlength="6" value="123456"></label>
+                        <button type="submit" class="button primary">Crear admin</button>
+                    </form>
+
+                    <form id="loginForm" class="form accentForm">
+                        <h3>Iniciar sesion</h3>
+                        <label>Correo<input name="correo" type="email" autocomplete="email" required value="admin@club.test"></label>
+                        <label>Password<input name="password" type="password" autocomplete="current-password" required value="123456"></label>
+                        <button type="submit" class="button success">Entrar</button>
+                    </form>
+                </div>
             </div>
 
-            <form id="trainerForm" class="form">
-                <label>
-                    ID usuario
-                    <input name="usuarioId" type="number" min="1" required value="3">
+            <div class="panel">
+                <div class="panelHeader">
+                    <div>
+                        <p class="eyebrow">Token</p>
+                        <h2>Credencial activa</h2>
+                    </div>
+                    <button id="clearTokenBtn" type="button" class="iconButton" aria-label="Limpiar token">x</button>
+                </div>
+
+                <label class="tokenBox">
+                    Token actual
+                    <textarea id="tokenView" spellcheck="false" placeholder="Aqui aparecera el JWT despues del login"></textarea>
                 </label>
-                <label>
-                    Especialidad
-                    <input name="especialidad" required value="Natacion">
-                </label>
-                <button type="submit">Crear entrenador</button>
-            </form>
+
+                <div class="quickActions">
+                    <button id="usersBtn" type="button" class="button ghost dark">Listar usuarios</button>
+                    <button id="trainersBtn" type="button" class="button ghost dark">Listar entrenadores</button>
+                </div>
+            </div>
         </section>
 
-        <section class="panel wide">
-            <div class="panelHeader">
-                <div>
-                    <h2>Crear usuario con rol</h2>
-                    <p>Endpoint protegido: POST /api/usuarios</p>
+        <section class="workspace">
+            <div class="panel">
+                <div class="panelHeader">
+                    <div>
+                        <p class="eyebrow">Administracion</p>
+                        <h2>Crear usuario</h2>
+                    </div>
+                    <span class="pill coral">Roles</span>
                 </div>
-                <span class="method">POST</span>
+
+                <form id="userForm" class="form gridForm">
+                    <label>Nombre<input name="nombre" autocomplete="given-name" required value="Usuario"></label>
+                    <label>Apellido<input name="apellido" autocomplete="family-name" required value="Prueba"></label>
+                    <label>Correo<input name="correo" type="email" autocomplete="email" required value="usuario@club.test"></label>
+                    <label>Telefono<input name="telefono" autocomplete="tel" value="5550001111"></label>
+                    <label>Password<input name="password" type="password" autocomplete="new-password" required minlength="6" value="123456"></label>
+                    <label>Rol
+                        <select name="rol" required>
+                            <option value="USUARIO">USUARIO</option>
+                            <option value="TRABAJADOR">TRABAJADOR</option>
+                            <option value="ENTRENADOR">ENTRENADOR</option>
+                            <option value="ADMINISTRADOR">ADMINISTRADOR</option>
+                            <option value="SOPORTE_TECNICO">SOPORTE_TECNICO</option>
+                        </select>
+                    </label>
+                    <button type="submit" class="button primary">Crear usuario</button>
+                </form>
             </div>
 
-            <form id="userForm" class="form">
-                <label>
-                    Nombre
-                    <input name="nombre" autocomplete="given-name" required value="Usuario">
-                </label>
-                <label>
-                    Apellido
-                    <input name="apellido" autocomplete="family-name" required value="Prueba">
-                </label>
-                <label>
-                    Correo
-                    <input name="correo" type="email" autocomplete="email" required value="usuario@club.test">
-                </label>
-                <label>
-                    Telefono
-                    <input name="telefono" autocomplete="tel" value="5550001111">
-                </label>
-                <label>
-                    Password
-                    <input name="password" type="password" autocomplete="new-password" required minlength="6" value="123456">
-                </label>
-                <label>
-                    Rol
-                    <select name="rol" required>
-                        <option value="USUARIO">USUARIO</option>
-                        <option value="TRABAJADOR">TRABAJADOR</option>
-                        <option value="ENTRENADOR">ENTRENADOR</option>
-                        <option value="ADMINISTRADOR">ADMINISTRADOR</option>
-                        <option value="SOPORTE_TECNICO">SOPORTE_TECNICO</option>
-                    </select>
-                </label>
-                <button type="submit">Crear usuario</button>
-            </form>
+            <div id="entrenadores" class="panel">
+                <div class="panelHeader">
+                    <div>
+                        <p class="eyebrow">Personal deportivo</p>
+                        <h2>Ficha de entrenador</h2>
+                    </div>
+                    <span class="pill green">Activo</span>
+                </div>
+
+                <form id="trainerForm" class="form">
+                    <label>ID usuario<input name="usuarioId" type="number" min="1" required value="3"></label>
+                    <label>Especialidad<input name="especialidad" required value="Natacion"></label>
+                    <button type="submit" class="button success">Crear entrenador</button>
+                </form>
+            </div>
         </section>
 
-        <section class="panel wide">
-            <div class="panelHeader">
+        <section id="reportes" class="section responseSection">
+            <div class="sectionHeader">
                 <div>
-                    <h2>Endpoints protegidos</h2>
-                    <p>Se envian con Authorization: Bearer &lt;token&gt;</p>
+                    <p class="eyebrow">Respuesta del backend</p>
+                    <h2>Consola operativa</h2>
                 </div>
-                <span class="method get">GET</span>
-            </div>
-
-            <div class="actions">
-                <button id="healthBtn" type="button">Probar health</button>
-                <button id="usersBtn" type="button">Listar usuarios</button>
-                <button id="trainersBtn" type="button">Listar entrenadores</button>
-                <button id="clearTokenBtn" type="button" class="secondary">Limpiar token</button>
-            </div>
-
-            <label class="tokenBox">
-                Token actual
-                <textarea id="tokenView" spellcheck="false" placeholder="Aqui aparecera el JWT despues del login"></textarea>
-            </label>
-        </section>
-
-        <section class="panel wide">
-            <div class="panelHeader">
-                <div>
-                    <h2>Respuesta del backend</h2>
-                    <p>Codigo HTTP, headers relevantes y JSON recibido</p>
-                </div>
+                <span class="pill">JSON</span>
             </div>
             <pre id="output" class="output">Esperando una prueba...</pre>
         </section>
