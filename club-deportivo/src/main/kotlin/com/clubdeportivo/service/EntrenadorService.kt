@@ -3,6 +3,7 @@ package com.clubdeportivo.service
 import com.clubdeportivo.dto.ActualizarEntrenadorRequest
 import com.clubdeportivo.dto.CrearEntrenadorRequest
 import com.clubdeportivo.dto.EntrenadorResponse
+import com.clubdeportivo.dto.RegistrarEntrenadorRequest
 import com.clubdeportivo.entity.Entrenador
 import com.clubdeportivo.entity.Usuario
 import com.clubdeportivo.exception.BadRequestException
@@ -12,6 +13,7 @@ import com.clubdeportivo.mapper.toResponse
 import com.clubdeportivo.repository.EntrenadorRepository
 import com.clubdeportivo.repository.RolRepository
 import com.clubdeportivo.repository.UsuarioRepository
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -21,6 +23,7 @@ class EntrenadorService(
     private val entrenadorRepository: EntrenadorRepository,
     private val usuarioRepository: UsuarioRepository,
     private val rolRepository: RolRepository,
+    private val passwordEncoder: PasswordEncoder,
 ) {
 
     fun crear(request: CrearEntrenadorRequest): Mono<EntrenadorResponse> =
@@ -39,6 +42,41 @@ class EntrenadorService(
                             entrenadorRepository.save(entrenador)
                                 .flatMap(::toResponse)
                         }
+                }
+            }
+
+    fun registrar(request: RegistrarEntrenadorRequest): Mono<EntrenadorResponse> =
+        usuarioRepository.existsByCorreo(request.correo)
+            .flatMap { existe ->
+                if (existe) {
+                    Mono.error(ConflictException("Ya existe un usuario con ese correo"))
+                } else {
+                    rolRepository.findByNombre("ENTRENADOR")
+                        .switchIfEmpty(Mono.error(BadRequestException("El rol ENTRENADOR no existe en la base de datos")))
+                        .flatMap { rol ->
+                            usuarioRepository.save(
+                                Usuario(
+                                    nombre = request.nombre,
+                                    apellido = request.apellido,
+                                    correo = request.correo,
+                                    password = requireNotNull(passwordEncoder.encode(request.password)) {
+                                        "No se pudo encriptar la contrasena"
+                                    },
+                                    telefono = request.telefono,
+                                    rolId = requireNotNull(rol.id) { "El rol ENTRENADOR debe tener id" },
+                                    activo = true,
+                                ),
+                            )
+                        }
+                        .flatMap { usuario ->
+                            entrenadorRepository.save(
+                                Entrenador(
+                                    usuarioId = requireNotNull(usuario.id) { "El usuario debe tener id" },
+                                    especialidad = request.especialidad,
+                                ),
+                            )
+                        }
+                        .flatMap(::toResponse)
                 }
             }
 

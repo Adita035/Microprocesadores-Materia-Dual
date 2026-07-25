@@ -19,6 +19,7 @@
         <nav class="nav">
             <a href="#dashboard" class="active">Panel</a>
             <a href="#operacion">Operacion</a>
+            <a href="#actividades">Actividades</a>
             <a href="#usuarios">Usuarios</a>
             <a href="#entrenadores">Entrenadores</a>
             <a href="#reportes">Reportes</a>
@@ -86,7 +87,7 @@
                     <h3>Entrenadores</h3>
                     <p>Ficha conectada al usuario con rol entrenador.</p>
                 </article>
-                <article class="moduleCard">
+                <article class="moduleCard ready">
                     <span class="moduleIcon">04</span>
                     <h3>Actividades</h3>
                     <p>Programacion, asignacion y cierre de sesiones.</p>
@@ -101,6 +102,51 @@
                     <h3>Incidencias</h3>
                     <p>Seguimiento tecnico y mantenimiento.</p>
                 </article>
+            </div>
+        </section>
+
+        <section id="actividades" class="workspace">
+            <div class="panel">
+                <div class="panelHeader">
+                    <div>
+                        <p class="eyebrow">Agenda deportiva</p>
+                        <h2>Crear actividad</h2>
+                    </div>
+                    <span class="pill coral">Actividad</span>
+                </div>
+
+                <form id="activityForm" class="form gridForm">
+                    <label>Nombre<input name="nombre" required value="Natacion matutina"></label>
+                    <label>Estado
+                        <select name="estado">
+                            <option value="PENDIENTE">PENDIENTE</option>
+                            <option value="EN_PROCESO">EN_PROCESO</option>
+                            <option value="FINALIZADA">FINALIZADA</option>
+                            <option value="CANCELADA">CANCELADA</option>
+                        </select>
+                    </label>
+                    <label>Fecha<input name="fecha" type="date"></label>
+                    <label>Hora inicio<input name="horaInicio" type="time"></label>
+                    <label>Hora fin<input name="horaFin" type="time"></label>
+                    <label>Descripcion<input name="descripcion" value="Sesion tecnica para socios activos"></label>
+                    <button type="submit" class="button primary">Crear actividad</button>
+                </form>
+            </div>
+
+            <div class="panel">
+                <div class="panelHeader">
+                    <div>
+                        <p class="eyebrow">Asignacion</p>
+                        <h2>Entrenador a actividad</h2>
+                    </div>
+                    <span class="pill green">Vinculo</span>
+                </div>
+
+                <form id="assignTrainerForm" class="form">
+                    <label>ID actividad<input name="actividadId" type="number" min="1" required value="1"></label>
+                    <label>ID entrenador<input name="entrenadorId" type="number" min="1" required value="1"></label>
+                    <button type="submit" class="button success">Asignar entrenador</button>
+                </form>
             </div>
         </section>
 
@@ -151,6 +197,7 @@
                 <div class="quickActions">
                     <button id="usersBtn" type="button" class="button ghost dark">Listar usuarios</button>
                     <button id="trainersBtn" type="button" class="button ghost dark">Listar entrenadores</button>
+                    <button id="activitiesBtn" type="button" class="button ghost dark">Listar actividades</button>
                 </div>
             </div>
         </section>
@@ -193,8 +240,12 @@
                     <span class="pill green">Activo</span>
                 </div>
 
-                <form id="trainerForm" class="form">
-                    <label>ID usuario<input name="usuarioId" type="number" min="1" required value="3"></label>
+                <form id="trainerForm" class="form gridForm">
+                    <label>Nombre<input name="nombre" autocomplete="given-name" required value="Entrenador"></label>
+                    <label>Apellido<input name="apellido" autocomplete="family-name" required value="Principal"></label>
+                    <label>Correo<input name="correo" type="email" autocomplete="email" required value="entrenador@club.test"></label>
+                    <label>Telefono<input name="telefono" autocomplete="tel" value="5552223333"></label>
+                    <label>Password<input name="password" type="password" autocomplete="new-password" required minlength="6" value="123456"></label>
                     <label>Especialidad<input name="especialidad" required value="Natacion"></label>
                     <button type="submit" class="button success">Crear entrenador</button>
                 </form>

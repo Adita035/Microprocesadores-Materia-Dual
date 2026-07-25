@@ -31,7 +31,7 @@ function formToJson(form) {
             .filter(([, value]) => String(value).trim() !== "")
             .map(([key, value]) => {
                 const normalizedValue = String(value).trim();
-                if (["usuarioId"].includes(key)) {
+                if (["usuarioId", "actividadId", "entrenadorId"].includes(key)) {
                     return [key, Number(normalizedValue)];
                 }
                 return [key, normalizedValue];
@@ -49,6 +49,16 @@ async function request(path, options = {}) {
         const token = getToken();
         if (token) {
             headers.set("Authorization", `Bearer ${token}`);
+        } else {
+            return {
+                ok: false,
+                status: 401,
+                statusText: "JWT requerido",
+                contentType: "application/json",
+                body: {
+                    mensaje: "Primero inicia sesion para obtener un token JWT.",
+                },
+            };
         }
     }
 
@@ -137,9 +147,38 @@ document.querySelector("#trainerForm").addEventListener("submit", async (event) 
     event.preventDefault();
     const title = "Crear entrenador";
     try {
-        const result = await request("/api/entrenadores", {
+        const result = await request("/api/entrenadores/registro", {
             method: "POST",
             body: formToJson(event.currentTarget),
+        });
+        printResult(title, result);
+    } catch (error) {
+        printError(title, error);
+    }
+});
+
+document.querySelector("#activityForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const title = "Crear actividad";
+    try {
+        const result = await request("/api/actividades", {
+            method: "POST",
+            body: formToJson(event.currentTarget),
+        });
+        printResult(title, result);
+    } catch (error) {
+        printError(title, error);
+    }
+});
+
+document.querySelector("#assignTrainerForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const title = "Asignar entrenador";
+    const data = formToJson(event.currentTarget);
+    try {
+        const result = await request(`/api/actividades/${data.actividadId}/entrenadores`, {
+            method: "POST",
+            body: { entrenadorId: data.entrenadorId },
         });
         printResult(title, result);
     } catch (error) {
@@ -169,6 +208,15 @@ document.querySelector("#trainersBtn").addEventListener("click", async () => {
     const title = "Listar entrenadores";
     try {
         printResult(title, await request("/api/entrenadores"));
+    } catch (error) {
+        printError(title, error);
+    }
+});
+
+document.querySelector("#activitiesBtn").addEventListener("click", async () => {
+    const title = "Listar actividades";
+    try {
+        printResult(title, await request("/api/actividades"));
     } catch (error) {
         printError(title, error);
     }
