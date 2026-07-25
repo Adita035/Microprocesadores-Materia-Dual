@@ -335,6 +335,11 @@ label {
     line-height: 1.55;
 }
 
+.moduleCardText {
+    color: var(--muted);
+    line-height: 1.65;
+}
+
 .workspace {
     display: grid;
     grid-template-columns: minmax(0, 1.35fr) minmax(340px, 0.65fr);

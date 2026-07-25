@@ -24,6 +24,16 @@ class UsuarioController(
     fun crearAdministrador(@Valid @RequestBody request: CrearAdminRequest): Mono<UsuarioResponse> =
         usuarioService.crearAdministrador(request)
 
+    @PostMapping("/administradores")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    fun crearAdministradorAdicional(@Valid @RequestBody request: CrearAdminRequest): Mono<UsuarioResponse> =
+        usuarioService.crearAdministradorAdicional(request)
+
+    @GetMapping("/administradores/listar")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    fun listarAdministradores(): Flux<UsuarioResponse> =
+        usuarioService.listarAdministradores()
+
     @PostMapping
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     fun crearUsuario(@Valid @RequestBody request: CrearUsuarioRequest): Mono<UsuarioResponse> =

@@ -196,9 +196,42 @@
 
                 <div class="quickActions">
                     <button id="usersBtn" type="button" class="button ghost dark">Listar usuarios</button>
+                    <button id="adminsBtn" type="button" class="button ghost dark">Listar administradores</button>
                     <button id="trainersBtn" type="button" class="button ghost dark">Listar entrenadores</button>
                     <button id="activitiesBtn" type="button" class="button ghost dark">Listar actividades</button>
                 </div>
+            </div>
+        </section>
+
+        <section class="workspace">
+            <div class="panel">
+                <div class="panelHeader">
+                    <div>
+                        <p class="eyebrow">Administracion</p>
+                        <h2>Crear administrador</h2>
+                    </div>
+                    <span class="pill coral">Protegido</span>
+                </div>
+
+                <form id="additionalAdminForm" class="form gridForm">
+                    <label>Nombre<input name="nombre" autocomplete="given-name" required value="Admin"></label>
+                    <label>Apellido<input name="apellido" autocomplete="family-name" required value="Secundario"></label>
+                    <label>Correo<input name="correo" type="email" autocomplete="email" required value="admin2@club.test"></label>
+                    <label>Telefono<input name="telefono" autocomplete="tel" value="5554443333"></label>
+                    <label>Password<input name="password" type="password" autocomplete="new-password" required minlength="6" value="123456"></label>
+                    <button type="submit" class="button primary">Crear administrador</button>
+                </form>
+            </div>
+
+            <div class="panel">
+                <div class="panelHeader">
+                    <div>
+                        <p class="eyebrow">Permisos</p>
+                        <h2>Alta con rol</h2>
+                    </div>
+                    <span class="pill green">ADMINISTRADOR</span>
+                </div>
+                <p class="moduleCardText">Los administradores adicionales se crean con JWT activo y quedan listos para iniciar sesion con los mismos permisos.</p>
             </div>
         </section>
 

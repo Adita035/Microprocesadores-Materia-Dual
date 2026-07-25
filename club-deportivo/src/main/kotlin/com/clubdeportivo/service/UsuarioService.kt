@@ -36,6 +36,13 @@ class UsuarioService(
                     .map { rol -> usuario.toResponse(rol) }
             }
 
+    fun listarAdministradores(): Flux<UsuarioResponse> =
+        obtenerRolPermitido("ADMINISTRADOR")
+            .flatMapMany { rol ->
+                usuarioRepository.findByRolId(requireNotNull(rol.id) { "El rol ADMINISTRADOR debe tener id" })
+                    .map { usuario -> usuario.toResponse(rol) }
+            }
+
     fun crearAdministrador(request: CrearAdminRequest): Mono<UsuarioResponse> =
         obtenerRol("ADMINISTRADOR")
             .flatMap { rol ->
@@ -54,6 +61,19 @@ class UsuarioService(
                             )
                         }
                     }
+            }
+
+    fun crearAdministradorAdicional(request: CrearAdminRequest): Mono<UsuarioResponse> =
+        obtenerRolPermitido("ADMINISTRADOR")
+            .flatMap { rol ->
+                crearUsuarioConRol(
+                    nombre = request.nombre,
+                    apellido = request.apellido,
+                    correo = request.correo,
+                    telefono = request.telefono,
+                    password = request.password,
+                    rol = rol,
+                )
             }
 
     fun crearUsuario(request: CrearUsuarioRequest): Mono<UsuarioResponse> =

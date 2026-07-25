@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.support.WebExchangeBindException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.server.MethodNotAllowedException
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
@@ -36,6 +37,11 @@ class GlobalExceptionHandler {
     fun handleValidationException(exception: WebExchangeBindException): ResponseEntity<ApiError> =
         ResponseEntity.badRequest()
             .body(ApiError(exception.fieldErrors.firstOrNull()?.defaultMessage ?: "Solicitud invalida"))
+
+    @ExceptionHandler(MethodNotAllowedException::class)
+    fun handleMethodNotAllowedException(exception: MethodNotAllowedException): ResponseEntity<ApiError> =
+        ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+            .body(ApiError("Metodo no permitido para esta ruta"))
 
     @ExceptionHandler(DataAccessException::class)
     fun handleDataAccessException(exception: DataAccessException): ResponseEntity<ApiError> {

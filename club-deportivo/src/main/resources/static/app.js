@@ -129,6 +129,20 @@ document.querySelector("#loginForm").addEventListener("submit", async (event) =>
     }
 });
 
+document.querySelector("#additionalAdminForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const title = "Crear administrador adicional";
+    try {
+        const result = await request("/api/usuarios/administradores", {
+            method: "POST",
+            body: formToJson(event.currentTarget),
+        });
+        printResult(title, result);
+    } catch (error) {
+        printError(title, error);
+    }
+});
+
 document.querySelector("#userForm").addEventListener("submit", async (event) => {
     event.preventDefault();
     const title = "Crear usuario";
@@ -199,6 +213,15 @@ document.querySelector("#usersBtn").addEventListener("click", async () => {
     const title = "Listar usuarios";
     try {
         printResult(title, await request("/api/usuarios"));
+    } catch (error) {
+        printError(title, error);
+    }
+});
+
+document.querySelector("#adminsBtn").addEventListener("click", async () => {
+    const title = "Listar administradores";
+    try {
+        printResult(title, await request("/api/usuarios/administradores/listar"));
     } catch (error) {
         printError(title, error);
     }
