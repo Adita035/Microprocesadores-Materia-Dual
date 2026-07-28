@@ -108,6 +108,12 @@ p {
     font-weight: 900;
 }
 
+.logoMark {
+    background:
+        linear-gradient(145deg, rgba(0, 96, 139, 0.45), rgba(92, 189, 115, 0.22)),
+        url("/assets/favicon.png") center / 42px 42px no-repeat;
+}
+
 .brand strong,
 .brand small {
     display: block;
