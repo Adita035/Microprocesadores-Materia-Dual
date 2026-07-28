@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Club Deportivo - Centro de Gestion</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <aside class="sidebar" aria-label="Navegacion principal">
+        <a class="brand" href="#dashboard" aria-label="Club Deportivo">
+            <span class="brandMark">CD</span>
+            <span>
+                <strong>Club Deportivo</strong>
+                <small>Centro de Gestion</small>
+            </span>
+        </a>
+
+        <nav class="nav">
+            <a href="#portal" class="active">Actividades club</a>
+            <a href="#dashboard">Administracion</a>
+            <a href="#operacion">Operacion</a>
+            <a href="#actividades">Actividades</a>
+            <a href="#usuarios">Usuarios</a>
+            <a href="#entrenadores">Entrenadores</a>
+            <a href="#reportes">Reportes</a>
+        </nav>
+
+        <div class="sessionCard">
+            <span class="statusDot"></span>
+            <div>
+                <p id="sessionStatus">Sin sesion</p>
+                <small>JWT local</small>
+            </div>
+        </div>
+    </aside>
+
+    <main class="shell">
+        <section id="portal" class="publicHero">
+            <div>
+                <p class="eyebrow">Club Deportivo</p>
+                <h1>Actividades, horarios y entrenadores en un solo lugar.</h1>
+                <p class="heroCopy">Consulta la agenda del club, revisa cada entrenamiento y administra tus inscripciones desde tu cuenta.</p>
+                <div class="heroActions">
+                    <a class="button primary" href="#catalogo">Ver actividades</a>
+                    <button id="myActivitiesBtn" type="button" class="button ghost">Mis actividades</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="catalogo" class="section">
+            <div class="sectionHeader">
+                <div>
+                    <p class="eyebrow">Vista de usuarios</p>
+                    <h2>Actividades disponibles</h2>
+                </div>
+                <span class="pill green">Agenda publica</span>
+            </div>
+            <div id="publicActivitiesGrid" class="activityGrid">
+                <article class="emptyState">Cargando actividades...</article>
+            </div>
+        </section>
+
+        <section id="dashboard" class="hero">
+            <div class="heroContent">
+                <p class="eyebrow">Sistema integral</p>
+                <h1>Gestion premium para operaciones deportivas.</h1>
+                <p class="heroCopy">Usuarios, entrenadores, actividades, instalaciones, incidencias y reportes centralizados en una sola plataforma.</p>
+                <div class="heroActions">
+                    <a class="button primary" href="#usuarios">Gestionar usuarios</a>
+                    <a class="button ghost" href="#operacion">Ver modulos</a>
+                </div>
+            </div>
+
+            <div class="heroStats" aria-label="Indicadores principales">
+                <article>
+                    <span>Usuarios</span>
+                    <strong>100+</strong>
+                </article>
+                <article>
+                    <span>Trabajadores</span>
+                    <strong>50</strong>
+                </article>
+                <article>
+                    <span>Control</span>
+                    <strong>24/7</strong>
+                </article>
+            </div>
+        </section>
+
+        <section id="operacion" class="section">
+            <div class="sectionHeader">
+                <div>
+                    <p class="eyebrow">Operacion del club</p>
+                    <h2>Modulos principales</h2>
+                </div>
+                <button id="healthBtn" type="button" class="button compact">Estado API</button>
+            </div>
+
+            <div class="moduleGrid">
+                <article class="moduleCard ready">
+                    <span class="moduleIcon">01</span>
+                    <h3>Autenticacion</h3>
+                    <p>Login, JWT y control de acceso por roles.</p>
+                </article>
+                <article class="moduleCard ready">
+                    <span class="moduleIcon">02</span>
+                    <h3>Usuarios</h3>
+                    <p>Alta, consulta y administracion por perfil.</p>
+                </article>
+                <article class="moduleCard ready">
+                    <span class="moduleIcon">03</span>
+                    <h3>Entrenadores</h3>
+                    <p>Ficha conectada al usuario con rol entrenador.</p>
+                </article>
+                <article class="moduleCard ready">
+                    <span class="moduleIcon">04</span>
+                    <h3>Actividades</h3>
+                    <p>Programacion, asignacion y cierre de sesiones.</p>
+                </article>
+                <article class="moduleCard">
+                    <span class="moduleIcon">05</span>
+                    <h3>Instalaciones</h3>
+                    <p>Disponibilidad y solicitudes operativas.</p>
+                </article>
+                <article class="moduleCard">
+                    <span class="moduleIcon">06</span>
+                    <h3>Incidencias</h3>
+                    <p>Seguimiento tecnico y mantenimiento.</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="actividades" class="workspace">
+            <div class="panel">
+                <div class="panelHeader">
+                    <div>
+                        <p class="eyebrow">Agenda deportiva</p>
+                        <h2>Crear actividad</h2>
+                    </div>
+                    <span class="pill coral">Actividad</span>
+                </div>
+
+                <form id="activityForm" class="form gridForm">
+                    <label>Nombre<input name="nombre" required value="Natacion matutina"></label>
+                    <label>Estado
+                        <select name="estado">
+                            <option value="PENDIENTE">PENDIENTE</option>
+                            <option value="EN_PROCESO">EN_PROCESO</option>
+                            <option value="FINALIZADA">FINALIZADA</option>
+                            <option value="CANCELADA">CANCELADA</option>
+                        </select>
+                    </label>
+                    <label>Fecha<input name="fecha" type="date"></label>
+                    <label>Hora inicio<input name="horaInicio" type="time"></label>
+                    <label>Hora fin<input name="horaFin" type="time"></label>
+                    <label>Descripcion<input name="descripcion" value="Sesion tecnica para socios activos"></label>
+                    <button type="submit" class="button primary">Crear actividad</button>
+                </form>
+            </div>
+
+            <div class="panel">
+                <div class="panelHeader">
+                    <div>
+                        <p class="eyebrow">Asignacion</p>
+                        <h2>Entrenador a actividad</h2>
+                    </div>
+                    <span class="pill green">Vinculo</span>
+                </div>
+
+                <form id="assignTrainerForm" class="form">
+                    <label>ID actividad<input name="actividadId" type="number" min="1" required value="1"></label>
+                    <label>ID entrenador<input name="entrenadorId" type="number" min="1" required value="1"></label>
+                    <button type="submit" class="button success">Asignar entrenador</button>
+                </form>
+            </div>
+        </section>
+
+        <section class="workspace">
+            <div id="usuarios" class="panel authPanel">
+                <div class="panelHeader">
+                    <div>
+                        <p class="eyebrow">Acceso</p>
+                        <h2>Sesion administrativa</h2>
+                    </div>
+                    <span class="pill">JWT</span>
+                </div>
+
+                <div class="splitForms">
+                    <form id="adminForm" class="form">
+                        <h3>Primer administrador</h3>
+                        <label>Nombre<input name="nombre" autocomplete="given-name" required value="Admin"></label>
+                        <label>Apellido<input name="apellido" autocomplete="family-name" required value="Principal"></label>
+                        <label>Correo<input name="correo" type="email" autocomplete="email" required value="admin@club.test"></label>
+                        <label>Telefono<input name="telefono" autocomplete="tel" value="5551234567"></label>
+                        <label>Password<input name="password" type="password" autocomplete="new-password" required minlength="6" value="123456"></label>
+                        <button type="submit" class="button primary">Crear admin</button>
+                    </form>
+
+                    <form id="loginForm" class="form accentForm">
+                        <h3>Iniciar sesion</h3>
+                        <label>Correo<input name="correo" type="email" autocomplete="email" required value="admin@club.test"></label>
+                        <label>Password<input name="password" type="password" autocomplete="current-password" required value="123456"></label>
+                        <button type="submit" class="button success">Entrar</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panelHeader">
+                    <div>
+                        <p class="eyebrow">Token</p>
+                        <h2>Credencial activa</h2>
+                    </div>
+                    <button id="clearTokenBtn" type="button" class="iconButton" aria-label="Limpiar token">x</button>
+                </div>
+
+                <label class="tokenBox">
+                    Token actual
+                    <textarea id="tokenView" spellcheck="false" placeholder="Aqui aparecera el JWT despues del login"></textarea>
+                </label>
+
+                <div class="quickActions">
+                    <button id="usersBtn" type="button" class="button ghost dark">Listar usuarios</button>
+                    <button id="adminsBtn" type="button" class="button ghost dark">Listar administradores</button>
+                    <button id="trainersBtn" type="button" class="button ghost dark">Listar entrenadores</button>
+                    <button id="activitiesBtn" type="button" class="button ghost dark">Listar actividades</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="workspace">
+            <div class="panel">
+                <div class="panelHeader">
+                    <div>
+                        <p class="eyebrow">Administracion</p>
+                        <h2>Crear administrador</h2>
+                    </div>
+                    <span class="pill coral">Protegido</span>
+                </div>
+
+                <form id="additionalAdminForm" class="form gridForm">
+                    <label>Nombre<input name="nombre" autocomplete="given-name" required value="Admin"></label>
+                    <label>Apellido<input name="apellido" autocomplete="family-name" required value="Secundario"></label>
+                    <label>Correo<input name="correo" type="email" autocomplete="email" required value="admin2@club.test"></label>
+                    <label>Telefono<input name="telefono" autocomplete="tel" value="5554443333"></label>
+                    <label>Password<input name="password" type="password" autocomplete="new-password" required minlength="6" value="123456"></label>
+                    <button type="submit" class="button primary">Crear administrador</button>
+                </form>
+            </div>
+
+            <div class="panel">
+                <div class="panelHeader">
+                    <div>
+                        <p class="eyebrow">Permisos</p>
+                        <h2>Alta con rol</h2>
+                    </div>
+                    <span class="pill green">ADMINISTRADOR</span>
+                </div>
+                <p class="moduleCardText">Los administradores adicionales se crean con JWT activo y quedan listos para iniciar sesion con los mismos permisos.</p>
+            </div>
+        </section>
+
+        <section class="workspace">
+            <div class="panel">
+                <div class="panelHeader">
+                    <div>
+                        <p class="eyebrow">Administracion</p>
+                        <h2>Crear usuario</h2>
+                    </div>
+                    <span class="pill coral">Roles</span>
+                </div>
+
+                <form id="userForm" class="form gridForm">
+                    <label>Nombre<input name="nombre" autocomplete="given-name" required value="Usuario"></label>
+                    <label>Apellido<input name="apellido" autocomplete="family-name" required value="Prueba"></label>
+                    <label>Correo<input name="correo" type="email" autocomplete="email" required value="usuario@club.test"></label>
+                    <label>Telefono<input name="telefono" autocomplete="tel" value="5550001111"></label>
+                    <label>Password<input name="password" type="password" autocomplete="new-password" required minlength="6" value="123456"></label>
+                    <label>Rol
+                        <select name="rol" required>
+                            <option value="USUARIO">USUARIO</option>
+                            <option value="TRABAJADOR">TRABAJADOR</option>
+                            <option value="ENTRENADOR">ENTRENADOR</option>
+                            <option value="ADMINISTRADOR">ADMINISTRADOR</option>
+                            <option value="SOPORTE_TECNICO">SOPORTE_TECNICO</option>
+                        </select>
+                    </label>
+                    <button type="submit" class="button primary">Crear usuario</button>
+                </form>
+            </div>
+
+            <div id="entrenadores" class="panel">
+                <div class="panelHeader">
+                    <div>
+                        <p class="eyebrow">Personal deportivo</p>
+                        <h2>Ficha de entrenador</h2>
+                    </div>
+                    <span class="pill green">Activo</span>
+                </div>
+
+                <form id="trainerForm" class="form gridForm">
+                    <label>Nombre<input name="nombre" autocomplete="given-name" required value="Entrenador"></label>
+                    <label>Apellido<input name="apellido" autocomplete="family-name" required value="Principal"></label>
+                    <label>Correo<input name="correo" type="email" autocomplete="email" required value="entrenador@club.test"></label>
+                    <label>Telefono<input name="telefono" autocomplete="tel" value="5552223333"></label>
+                    <label>Password<input name="password" type="password" autocomplete="new-password" required minlength="6" value="123456"></label>
+                    <label>Especialidad<input name="especialidad" required value="Natacion"></label>
+                    <button type="submit" class="button success">Crear entrenador</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="reportes" class="section responseSection">
+            <div class="sectionHeader">
+                <div>
+                    <p class="eyebrow">Respuesta del backend</p>
+                    <h2>Consola operativa</h2>
+                </div>
+                <span class="pill">JSON</span>
+            </div>
+            <pre id="output" class="output">Esperando una prueba...</pre>
+        </section>
+
+        <div id="activityDetail" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="activityTitle">
+            <section class="detailSheet">
+                <button id="closeDetailBtn" type="button" class="iconButton closeButton" aria-label="Cerrar detalle">x</button>
+                <div id="activityImage" class="detailImage"></div>
+                <div class="detailContent">
+                    <p id="activityState" class="eyebrow">Actividad</p>
+                    <h2 id="activityTitle">Detalle de actividad</h2>
+                    <p id="activityDescription" class="detailText"></p>
+                    <dl class="detailList">
+                        <div>
+                            <dt>Horario</dt>
+                            <dd id="activitySchedule">Sin horario</dd>
+                        </div>
+                        <div>
+                            <dt>Entrenador</dt>
+                            <dd id="activityTrainer">Sin entrenador asignado</dd>
+                        </div>
+                    </dl>
+                    <button id="enrollBtn" type="button" class="button success">Inscribirme</button>
+                </div>
+            </section>
+        </div>
+
+        <div id="loginModal" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modalLoginTitle">
+            <section class="loginSheet">
+                <button id="closeLoginModalBtn" type="button" class="iconButton closeButton" aria-label="Cerrar login">x</button>
+                <p class="eyebrow">Acceso requerido</p>
+                <h2 id="modalLoginTitle">Iniciar sesion</h2>
+                <form id="modalLoginForm" class="form">
+                    <label>Correo<input name="correo" type="email" autocomplete="email" required></label>
+                    <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+                    <button type="submit" class="button primary">Entrar e inscribirme</button>
+                </form>
+            </section>
+        </div>
+    </main>
+
+    <script src="/admin.js"></script>
+</body>
+</html>
