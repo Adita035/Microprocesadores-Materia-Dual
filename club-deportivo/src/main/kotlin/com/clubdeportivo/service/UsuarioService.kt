@@ -76,6 +76,19 @@ class UsuarioService(
                 )
             }
 
+    fun registrarUsuarioPublico(request: CrearAdminRequest): Mono<UsuarioResponse> =
+        obtenerRolPermitido("USUARIO")
+            .flatMap { rol ->
+                crearUsuarioConRol(
+                    nombre = request.nombre,
+                    apellido = request.apellido,
+                    correo = request.correo,
+                    telefono = request.telefono,
+                    password = request.password,
+                    rol = rol,
+                )
+            }
+
     fun crearUsuario(request: CrearUsuarioRequest): Mono<UsuarioResponse> =
         obtenerRolPermitido(request.rol)
             .flatMap { rol ->
