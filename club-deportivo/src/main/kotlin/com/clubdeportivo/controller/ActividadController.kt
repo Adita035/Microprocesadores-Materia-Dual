@@ -5,8 +5,10 @@ import com.clubdeportivo.dto.ActualizarActividadRequest
 import com.clubdeportivo.dto.ActualizarEstadoActividadRequest
 import com.clubdeportivo.dto.AsignarEntrenadorRequest
 import com.clubdeportivo.dto.CrearActividadRequest
+import com.clubdeportivo.dto.InscripcionActividadResponse
 import com.clubdeportivo.service.ActividadService
 import jakarta.validation.Valid
+import org.springframework.security.core.Authentication
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -40,6 +42,19 @@ class ActividadController(
     fun buscarPorId(@PathVariable id: Long): Mono<ActividadResponse> =
         actividadService.buscarPorId(id)
 
+    @GetMapping("/publicas")
+    fun listarPublicas(): Flux<ActividadResponse> =
+        actividadService.listar()
+
+    @GetMapping("/publicas/{id}")
+    fun buscarPublicaPorId(@PathVariable id: Long): Mono<ActividadResponse> =
+        actividadService.buscarPorId(id)
+
+    @GetMapping("/mis-inscripciones")
+    @PreAuthorize("isAuthenticated()")
+    fun listarMisInscripciones(authentication: Authentication): Flux<ActividadResponse> =
+        actividadService.listarInscritas(authentication.name)
+
     @GetMapping("/entrenador/{entrenadorId}")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ENTRENADOR')")
     fun listarPorEntrenador(@PathVariable entrenadorId: Long): Flux<ActividadResponse> =
@@ -68,4 +83,12 @@ class ActividadController(
         @Valid @RequestBody request: AsignarEntrenadorRequest,
     ): Mono<ActividadResponse> =
         actividadService.asignarEntrenador(id, request)
+
+    @PostMapping("/{id}/inscripcion")
+    @PreAuthorize("isAuthenticated()")
+    fun inscribir(
+        @PathVariable id: Long,
+        authentication: Authentication,
+    ): Mono<InscripcionActividadResponse> =
+        actividadService.inscribir(id, authentication.name)
 }

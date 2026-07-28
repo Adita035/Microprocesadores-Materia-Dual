@@ -45,3 +45,8 @@ data class ActividadResponse(
     val estado: String?,
     val entrenadores: List<EntrenadorResponse>,
 )
+
+data class InscripcionActividadResponse(
+    val mensaje: String,
+    val actividad: ActividadResponse,
+)

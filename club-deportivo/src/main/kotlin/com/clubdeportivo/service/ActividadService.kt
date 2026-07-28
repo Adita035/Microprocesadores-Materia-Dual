@@ -5,9 +5,11 @@ import com.clubdeportivo.dto.ActualizarActividadRequest
 import com.clubdeportivo.dto.ActualizarEstadoActividadRequest
 import com.clubdeportivo.dto.AsignarEntrenadorRequest
 import com.clubdeportivo.dto.CrearActividadRequest
+import com.clubdeportivo.dto.InscripcionActividadResponse
 import com.clubdeportivo.entity.Actividad
 import com.clubdeportivo.entity.ActividadEntrenador
 import com.clubdeportivo.entity.Entrenador
+import com.clubdeportivo.entity.InscripcionActividad
 import com.clubdeportivo.exception.BadRequestException
 import com.clubdeportivo.exception.ConflictException
 import com.clubdeportivo.exception.NotFoundException
@@ -15,6 +17,7 @@ import com.clubdeportivo.mapper.toResponse
 import com.clubdeportivo.repository.ActividadEntrenadorRepository
 import com.clubdeportivo.repository.ActividadRepository
 import com.clubdeportivo.repository.EntrenadorRepository
+import com.clubdeportivo.repository.InscripcionActividadRepository
 import com.clubdeportivo.repository.RolRepository
 import com.clubdeportivo.repository.UsuarioRepository
 import org.springframework.stereotype.Service
@@ -26,6 +29,7 @@ class ActividadService(
     private val actividadRepository: ActividadRepository,
     private val actividadEntrenadorRepository: ActividadEntrenadorRepository,
     private val entrenadorRepository: EntrenadorRepository,
+    private val inscripcionActividadRepository: InscripcionActividadRepository,
     private val usuarioRepository: UsuarioRepository,
     private val rolRepository: RolRepository,
 ) {
@@ -60,6 +64,15 @@ class ActividadService(
         actividadRepository.findById(id)
             .switchIfEmpty(Mono.error(NotFoundException("Actividad no encontrada")))
             .flatMap(::toResponse)
+
+    fun listarInscritas(correo: String): Flux<ActividadResponse> =
+        usuarioRepository.findByCorreo(correo)
+            .switchIfEmpty(Mono.error(NotFoundException("Usuario no encontrado")))
+            .flatMapMany { usuario ->
+                inscripcionActividadRepository.findByUsuarioId(requireNotNull(usuario.id) { "El usuario debe tener id" })
+                    .flatMap { inscripcion -> actividadRepository.findById(inscripcion.actividadId) }
+                    .flatMap(::toResponse)
+            }
 
     fun actualizar(id: Long, request: ActualizarActividadRequest): Mono<ActividadResponse> =
         actividadRepository.findById(id)
@@ -109,6 +122,32 @@ class ActividadService(
                     }
             }
             .flatMap(::toResponse)
+
+    fun inscribir(id: Long, correo: String): Mono<InscripcionActividadResponse> =
+        actividadRepository.findById(id)
+            .switchIfEmpty(Mono.error(NotFoundException("Actividad no encontrada")))
+            .flatMap { actividad ->
+                usuarioRepository.findByCorreo(correo)
+                    .switchIfEmpty(Mono.error(NotFoundException("Usuario no encontrado")))
+                    .flatMap { usuario ->
+                        val usuarioId = requireNotNull(usuario.id) { "El usuario debe tener id" }
+                        inscripcionActividadRepository.existsByUsuarioIdAndActividadId(usuarioId, id)
+                            .flatMap { existe ->
+                                if (existe) {
+                                    Mono.error(ConflictException("Ya estas inscrito en esta actividad"))
+                                } else {
+                                    inscripcionActividadRepository.save(
+                                        InscripcionActividad(
+                                            usuarioId = usuarioId,
+                                            actividadId = id,
+                                        ),
+                                    ).thenReturn(actividad)
+                                }
+                            }
+                    }
+            }
+            .flatMap(::toResponse)
+            .map { actividad -> InscripcionActividadResponse("Inscripcion registrada", actividad) }
 
     private fun normalizarEstado(estado: String?): String {
         val normalizado = estado?.trim()?.uppercase().takeUnless { it.isNullOrBlank() } ?: "PENDIENTE"
