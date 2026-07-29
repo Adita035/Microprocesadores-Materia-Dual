@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Club Deportivo - Membresias</title>
+    <link rel="icon" type="image/png" href="/assets/favicon.png">
+    <link rel="apple-touch-icon" href="/assets/favicon.png">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="publicPage">
+    <header class="publicTopbar">
+        <a class="brand" href="/" aria-label="Club Deportivo">
+            <span class="brandMark logoMark"></span>
+            <span>
+                <strong>Club Deportivo</strong>
+                <small>Membresias</small>
+            </span>
+        </a>
+
+        <nav class="publicNav">
+            <a href="/">Inicio</a>
+            <a href="/#actividades-publicas">Actividades</a>
+            <a class="button ghost" href="/#membresias">Planes</a>
+        </nav>
+    </header>
+
+    <main class="publicShell">
+        <section class="membershipHero">
+            <div>
+                <p class="eyebrow">Membresias</p>
+                <h1>Selecciona el plan que se ajusta a tu ritmo.</h1>
+                <p class="heroCopy">Compara beneficios, duracion y acceso antes de continuar con tu registro dentro del club.</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="membershipPlans">
+                <article class="membershipPlan">
+                    <span class="pill green">Basica</span>
+                    <h2>Acceso Activo</h2>
+                    <strong>$399 MXN</strong>
+                    <p>Para usuarios que quieren empezar a entrenar con acceso controlado a actividades.</p>
+                    <ul>
+                        <li>Duracion de 30 dias</li>
+                        <li>Consulta de actividades disponibles</li>
+                        <li>Inscripcion a actividades abiertas</li>
+                        <li>Soporte basico del club</li>
+                    </ul>
+                    <button type="button" class="button primary" data-membership="Acceso Activo">Seleccionar</button>
+                </article>
+
+                <article class="membershipPlan featured">
+                    <span class="pill coral">Premium</span>
+                    <h2>Club Total</h2>
+                    <strong>$699 MXN</strong>
+                    <p>Para socios constantes que quieren mejores beneficios y prioridad operativa.</p>
+                    <ul>
+                        <li>Duracion de 30 dias</li>
+                        <li>Prioridad en inscripciones</li>
+                        <li>Acceso a actividades seleccionadas</li>
+                        <li>Beneficios internos del club</li>
+                    </ul>
+                    <button type="button" class="button success" data-membership="Club Total">Seleccionar</button>
+                </article>
+
+                <article class="membershipPlan">
+                    <span class="pill">Elite</span>
+                    <h2>Alto Rendimiento</h2>
+                    <strong>$999 MXN</strong>
+                    <p>Para usuarios que buscan una experiencia completa y seguimiento deportivo superior.</p>
+                    <ul>
+                        <li>Duracion de 30 dias</li>
+                        <li>Inscripciones con mayor prioridad</li>
+                        <li>Actividades premium disponibles</li>
+                        <li>Beneficios extendidos por perfil</li>
+                    </ul>
+                    <button type="button" class="button primary" data-membership="Alto Rendimiento">Seleccionar</button>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <pre id="toast" class="publicToast hidden"></pre>
+    <script src="/membresias.js"></script>
+</body>
+</html>

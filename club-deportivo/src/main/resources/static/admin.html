@@ -38,15 +38,43 @@
     </aside>
 
     <main class="shell">
-        <section id="portal" class="publicHero">
-            <div>
-                <p class="eyebrow">Club Deportivo</p>
-                <h1>Actividades, horarios y entrenadores en un solo lugar.</h1>
-                <p class="heroCopy">Consulta la agenda del club, revisa cada entrenamiento y administra tus inscripciones desde tu cuenta.</p>
-                <div class="heroActions">
-                    <a class="button primary" href="#catalogo">Ver actividades</a>
-                    <button id="myActivitiesBtn" type="button" class="button ghost">Mis actividades</button>
+        <section id="portal" class="publicHero standaloneHero">
+            <div class="publicHeroCopy">
+                <div id="adminHeroBannerTrack" class="heroBannerTrack">
+                    <article class="heroBannerSlide">
+                        <p class="eyebrow">Centro de Gestion</p>
+                        <h1>Gestion premium para operaciones deportivas.</h1>
+                        <p class="heroCopy">Usuarios, entrenadores, actividades, instalaciones, incidencias y reportes centralizados en una sola plataforma.</p>
+                        <div class="heroActions">
+                            <a class="button primary" href="#usuarios">Gestionar usuarios</a>
+                            <a class="button ghost" href="#operacion">Ver modulos</a>
+                        </div>
+                    </article>
+
+                    <article class="heroBannerSlide">
+                        <p class="eyebrow">Agenda deportiva</p>
+                        <h1>Actividades y entrenadores conectados.</h1>
+                        <p class="heroCopy">Crea actividades, programa horarios y asigna entrenadores para mantener la operacion del club organizada.</p>
+                        <div class="heroActions">
+                            <a class="button primary" href="#actividades">Crear actividad</a>
+                            <a class="button ghost" href="#entrenadores">Gestionar entrenadores</a>
+                        </div>
+                    </article>
+
+                    <article class="heroBannerSlide">
+                        <p class="eyebrow">Control administrativo</p>
+                        <h1>Usuarios, roles y administradores bajo control.</h1>
+                        <p class="heroCopy">Administra altas, consulta usuarios, lista administradores y valida la informacion operativa desde el panel.</p>
+                        <div class="heroActions">
+                            <a class="button primary" href="#usuarios">Crear usuario</a>
+                            <a class="button ghost" href="#reportes">Ver consola</a>
+                        </div>
+                    </article>
                 </div>
+            </div>
+            <div class="sliderControls heroTextControls">
+                <button id="prevAdminHeroSlideBtn" type="button" class="iconButton" aria-label="Informacion anterior">&lt;</button>
+                <button id="nextAdminHeroSlideBtn" type="button" class="iconButton" aria-label="Informacion siguiente">&gt;</button>
             </div>
         </section>
 
@@ -60,33 +88,6 @@
             </div>
             <div id="publicActivitiesGrid" class="activityGrid">
                 <article class="emptyState">Cargando actividades...</article>
-            </div>
-        </section>
-
-        <section id="dashboard" class="hero">
-            <div class="heroContent">
-                <p class="eyebrow">Sistema integral</p>
-                <h1>Gestion premium para operaciones deportivas.</h1>
-                <p class="heroCopy">Usuarios, entrenadores, actividades, instalaciones, incidencias y reportes centralizados en una sola plataforma.</p>
-                <div class="heroActions">
-                    <a class="button primary" href="#usuarios">Gestionar usuarios</a>
-                    <a class="button ghost" href="#operacion">Ver modulos</a>
-                </div>
-            </div>
-
-            <div class="heroStats" aria-label="Indicadores principales">
-                <article>
-                    <span>Usuarios</span>
-                    <strong>100+</strong>
-                </article>
-                <article>
-                    <span>Trabajadores</span>
-                    <strong>50</strong>
-                </article>
-                <article>
-                    <span>Control</span>
-                    <strong>24/7</strong>
-                </article>
             </div>
         </section>
 

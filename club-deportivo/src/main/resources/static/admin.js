@@ -1,4 +1,5 @@
 const tokenKey = "clubDeportivoJwt";
+const userKey = "clubDeportivoUser";
 const output = document.querySelector("#output");
 const tokenView = document.querySelector("#tokenView");
 const sessionStatus = document.querySelector("#sessionStatus");
@@ -6,27 +7,64 @@ const sessionCard = document.querySelector(".sessionCard");
 const publicActivitiesGrid = document.querySelector("#publicActivitiesGrid");
 const activityDetail = document.querySelector("#activityDetail");
 const loginModal = document.querySelector("#loginModal");
+const adminHeroBannerTrack = document.querySelector("#adminHeroBannerTrack");
 let selectedActivityId = null;
 let pendingEnrollmentId = null;
+let adminHeroSlideIndex = 0;
 
 function getToken() {
     return localStorage.getItem(tokenKey) || "";
 }
 
-function setToken(token) {
+function getUser() {
+    const storedUser = localStorage.getItem(userKey);
+    if (!storedUser) return null;
+    try {
+        return JSON.parse(storedUser);
+    } catch {
+        localStorage.removeItem(userKey);
+        return null;
+    }
+}
+
+function hasAdminAccess() {
+    return Boolean(getToken()) && getUser()?.rol === "ADMINISTRADOR";
+}
+
+if (!hasAdminAccess()) {
+    window.location.replace("/");
+}
+
+function setSession(token, user = null) {
     if (token) {
         localStorage.setItem(tokenKey, token);
     } else {
         localStorage.removeItem(tokenKey);
     }
+
+    if (user) {
+        localStorage.setItem(userKey, JSON.stringify(user));
+    } else {
+        localStorage.removeItem(userKey);
+    }
     renderToken();
+}
+
+function setToken(token) {
+    setSession(token, getUser());
 }
 
 function renderToken() {
     const token = getToken();
+    const user = getUser();
     tokenView.value = token;
-    sessionStatus.textContent = token ? "Token activo" : "Sin sesion";
+    sessionStatus.textContent = token ? (user ? `${user.nombre} ${user.apellido}` : "Token activo") : "Sin sesion";
     sessionCard.classList.toggle("active", Boolean(token));
+}
+
+function moveAdminHeroSlide(direction) {
+    adminHeroSlideIndex = (adminHeroSlideIndex + direction + 3) % 3;
+    adminHeroBannerTrack.style.transform = `translateX(-${adminHeroSlideIndex * 100}%)`;
 }
 
 function formToJson(form) {
@@ -234,7 +272,15 @@ document.querySelector("#loginForm").addEventListener("submit", async (event) =>
             body: formToJson(event.currentTarget),
         });
         if (result.ok && result.body?.token) {
-            setToken(result.body.token);
+            if (result.body.usuario?.rol !== "ADMINISTRADOR") {
+                printResult(title, {
+                    ...result,
+                    ok: false,
+                    body: { mensaje: "Tu cuenta no tiene permisos de administrador." },
+                });
+                return;
+            }
+            setSession(result.body.token, result.body.usuario);
         }
         printResult(title, result);
     } catch (error) {
@@ -252,7 +298,7 @@ document.querySelector("#modalLoginForm").addEventListener("submit", async (even
             body: formToJson(event.currentTarget),
         });
         if (result.ok && result.body?.token) {
-            setToken(result.body.token);
+            setSession(result.body.token, result.body.usuario);
             closeLoginModal();
             if (pendingEnrollmentId) {
                 await enrollActivity(pendingEnrollmentId);
@@ -381,24 +427,8 @@ document.querySelector("#activitiesBtn").addEventListener("click", async () => {
     }
 });
 
-document.querySelector("#myActivitiesBtn").addEventListener("click", async () => {
-    const title = "Mis actividades inscritas";
-    if (!getToken()) {
-        openLoginModal();
-        return;
-    }
-
-    try {
-        const result = await request("/api/actividades/mis-inscripciones");
-        if (result.ok) {
-            renderActivities(result.body || []);
-            window.location.hash = "#catalogo";
-        }
-        printResult(title, result);
-    } catch (error) {
-        printError(title, error);
-    }
-});
+document.querySelector("#prevAdminHeroSlideBtn").addEventListener("click", () => moveAdminHeroSlide(-1));
+document.querySelector("#nextAdminHeroSlideBtn").addEventListener("click", () => moveAdminHeroSlide(1));
 
 document.querySelector("#enrollBtn").addEventListener("click", () => {
     if (selectedActivityId) {
@@ -410,8 +440,9 @@ document.querySelector("#closeDetailBtn").addEventListener("click", closeActivit
 document.querySelector("#closeLoginModalBtn").addEventListener("click", closeLoginModal);
 
 document.querySelector("#clearTokenBtn").addEventListener("click", () => {
-    setToken("");
+    setSession("");
     output.textContent = "Token eliminado. Prueba listar usuarios para confirmar que el endpoint protegido responde 401/403.";
+    window.location.replace("/");
 });
 
 tokenView.addEventListener("input", () => {
