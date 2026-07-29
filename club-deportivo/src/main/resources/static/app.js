@@ -1,29 +1,73 @@
 const tokenKey = "clubDeportivoJwt";
+const userKey = "clubDeportivoUser";
 const publicActivitiesGrid = document.querySelector("#publicActivitiesGrid");
 const myActivitiesGrid = document.querySelector("#myActivitiesGrid");
 const publicSessionStatus = document.querySelector("#publicSessionStatus");
+const publicUserBadge = document.querySelector("#publicUserBadge");
+const openAuthBtn = document.querySelector("#openAuthBtn");
+const logoutBtn = document.querySelector("#logoutBtn");
 const activityDetail = document.querySelector("#activityDetail");
 const authModal = document.querySelector("#authModal");
+const adminPromptModal = document.querySelector("#adminPromptModal");
+const adminPromptActions = document.querySelector("#adminPromptActions");
+const adminLoginForm = document.querySelector("#adminLoginForm");
+const myActivitiesBtn = document.querySelector("#myActivitiesBtn");
+const myActivitiesSection = document.querySelector("#mis-actividades");
+const heroBannerTrack = document.querySelector("#heroBannerTrack");
+const enrollBtn = document.querySelector("#enrollBtn");
+const heroMyActivitiesBtn = document.querySelector("#heroMyActivitiesBtn");
 const toast = document.querySelector("#toast");
 let selectedActivityId = null;
 let pendingEnrollmentId = null;
+let heroSlideIndex = 0;
+const heroSlideCount = 5;
 
 function getToken() {
     return localStorage.getItem(tokenKey) || "";
 }
 
-function setToken(token) {
+function getUser() {
+    const storedUser = localStorage.getItem(userKey);
+    if (!storedUser) return null;
+    try {
+        return JSON.parse(storedUser);
+    } catch {
+        localStorage.removeItem(userKey);
+        return null;
+    }
+}
+
+function setSession(token, user = null) {
     if (token) {
         localStorage.setItem(tokenKey, token);
     } else {
         localStorage.removeItem(tokenKey);
     }
+
+    if (user) {
+        localStorage.setItem(userKey, JSON.stringify(user));
+    } else {
+        localStorage.removeItem(userKey);
+    }
     renderSession();
 }
 
 function renderSession() {
-    publicSessionStatus.textContent = getToken() ? "Sesion activa" : "Sin sesion";
-    publicSessionStatus.classList.toggle("green", Boolean(getToken()));
+    const user = getUser();
+    const hasSession = Boolean(getToken());
+    const isAdmin = user?.rol === "ADMINISTRADOR";
+    const fullName = user ? `${user.nombre || ""} ${user.apellido || ""}`.trim() : "";
+
+    publicSessionStatus.textContent = hasSession ? "Sesion activa" : "Sin sesion";
+    publicSessionStatus.classList.toggle("green", hasSession);
+    publicUserBadge.textContent = fullName || "Usuario activo";
+    publicUserBadge.classList.toggle("hidden", !hasSession);
+    logoutBtn.classList.toggle("hidden", !hasSession);
+    openAuthBtn.classList.toggle("hidden", hasSession);
+    myActivitiesBtn.classList.toggle("hidden", isAdmin);
+    heroMyActivitiesBtn.classList.toggle("hidden", isAdmin);
+    myActivitiesSection.classList.toggle("hidden", isAdmin);
+    enrollBtn.classList.toggle("hidden", isAdmin);
 }
 
 function showToast(data) {
@@ -181,12 +225,43 @@ function closeAuthModal() {
     authModal.classList.add("hidden");
 }
 
+function openAdminPromptModal() {
+    const user = getUser();
+    if (getToken() && user?.rol === "ADMINISTRADOR") {
+        window.location.href = "/admin.html";
+        return;
+    }
+
+    adminPromptActions.classList.remove("hidden");
+    adminLoginForm.classList.add("hidden");
+    adminPromptModal.classList.remove("hidden");
+}
+
+function closeAdminPromptModal() {
+    adminPromptModal.classList.add("hidden");
+}
+
+function showAdminLoginForm() {
+    adminPromptActions.classList.add("hidden");
+    adminLoginForm.classList.remove("hidden");
+}
+
 function setAuthMode(mode) {
     document.querySelector("#publicLoginForm").classList.toggle("hidden", mode !== "login");
     document.querySelector("#publicRegisterForm").classList.toggle("hidden", mode !== "register");
 }
 
+function moveHeroSlide(direction) {
+    heroSlideIndex = (heroSlideIndex + direction + heroSlideCount) % heroSlideCount;
+    heroBannerTrack.style.transform = `translateX(-${heroSlideIndex * 100}%)`;
+}
+
 async function enrollActivity(activityId) {
+    if (getUser()?.rol === "ADMINISTRADOR") {
+        showToast("Los administradores crean y asignan actividades; no pueden inscribirse.");
+        return;
+    }
+
     if (!getToken()) {
         openAuthModal(activityId);
         return;
@@ -199,14 +274,26 @@ async function enrollActivity(activityId) {
     }
 }
 
-document.querySelector("#openAuthBtn").addEventListener("click", () => openAuthModal());
+openAuthBtn.addEventListener("click", () => openAuthModal());
 document.querySelector("#heroRegisterBtn").addEventListener("click", () => openAuthModal(null, "register"));
-document.querySelector("#myActivitiesBtn").addEventListener("click", loadMyActivities);
+myActivitiesBtn.addEventListener("click", loadMyActivities);
+heroMyActivitiesBtn.addEventListener("click", loadMyActivities);
 document.querySelector("#closeDetailBtn").addEventListener("click", closeActivityDetail);
 document.querySelector("#closeAuthModalBtn").addEventListener("click", closeAuthModal);
 document.querySelector("#showLoginBtn").addEventListener("click", () => setAuthMode("login"));
 document.querySelector("#showRegisterBtn").addEventListener("click", () => setAuthMode("register"));
-document.querySelector("#enrollBtn").addEventListener("click", () => {
+logoutBtn.addEventListener("click", () => {
+    setSession("");
+    myActivitiesGrid.innerHTML = '<article class="emptyState">Inicia sesion para consultar tus actividades inscritas.</article>';
+    showToast("Sesion cerrada.");
+});
+document.querySelector("#adminAccessBtn").addEventListener("click", openAdminPromptModal);
+document.querySelector("#closeAdminPromptBtn").addEventListener("click", closeAdminPromptModal);
+document.querySelector("#cancelAdminLoginBtn").addEventListener("click", closeAdminPromptModal);
+document.querySelector("#showAdminLoginBtn").addEventListener("click", showAdminLoginForm);
+document.querySelector("#prevHeroSlideBtn").addEventListener("click", () => moveHeroSlide(-1));
+document.querySelector("#nextHeroSlideBtn").addEventListener("click", () => moveHeroSlide(1));
+enrollBtn.addEventListener("click", () => {
     if (selectedActivityId) enrollActivity(selectedActivityId);
 });
 
@@ -218,7 +305,7 @@ document.querySelector("#publicLoginForm").addEventListener("submit", async (eve
         body: formToJson(event.currentTarget),
     });
     if (result.ok && result.body?.token) {
-        setToken(result.body.token);
+        setSession(result.body.token, result.body.usuario);
         closeAuthModal();
         showToast("Sesion iniciada correctamente.");
         if (pendingEnrollmentId) {
@@ -250,7 +337,7 @@ document.querySelector("#publicRegisterForm").addEventListener("submit", async (
         body: { correo: data.correo, password: data.password },
     });
     if (login.ok && login.body?.token) {
-        setToken(login.body.token);
+        setSession(login.body.token, login.body.usuario);
         closeAuthModal();
         showToast("Cuenta creada e iniciada correctamente.");
         if (pendingEnrollmentId) {
@@ -262,6 +349,28 @@ document.querySelector("#publicRegisterForm").addEventListener("submit", async (
         showToast("Cuenta creada. Inicia sesion para continuar.");
         setAuthMode("login");
     }
+});
+
+adminLoginForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const result = await request("/api/auth/login", {
+        method: "POST",
+        auth: false,
+        body: formToJson(event.currentTarget),
+    });
+
+    if (!result.ok || !result.body?.token) {
+        showToast(result.body || "No se pudo iniciar sesion administrativa.");
+        return;
+    }
+
+    if (result.body.usuario?.rol !== "ADMINISTRADOR") {
+        showToast("Tu cuenta no tiene permisos de administrador.");
+        return;
+    }
+
+    setSession(result.body.token, result.body.usuario);
+    window.location.href = "/admin.html";
 });
 
 renderSession();

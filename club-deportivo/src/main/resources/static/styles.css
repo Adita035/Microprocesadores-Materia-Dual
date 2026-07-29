@@ -90,6 +90,18 @@ p {
     font-weight: 800;
 }
 
+.userBadge {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid rgba(214, 179, 106, 0.42);
+    border-radius: 8px;
+    padding: 0 14px;
+    background: rgba(214, 179, 106, 0.12);
+    color: #ffe8b6;
+    font-weight: 900;
+}
+
 .brand {
     display: flex;
     align-items: center;
@@ -199,6 +211,7 @@ p {
 }
 
 .publicHero {
+    position: relative;
     min-height: 470px;
     display: grid;
     align-items: end;
@@ -211,11 +224,55 @@ p {
     box-shadow: var(--shadow);
 }
 
+.publicHeroCopy {
+    align-self: end;
+    overflow: hidden;
+    width: 100%;
+}
+
 .publicHero h1 {
     max-width: 780px;
     margin-top: 12px;
     font-size: clamp(38px, 5vw, 76px);
     line-height: 0.98;
+}
+
+.heroBannerTrack {
+    display: flex;
+    transition: transform 420ms ease;
+}
+
+.heroBannerSlide {
+    flex: 0 0 100%;
+    min-width: 100%;
+    padding-right: 84px;
+}
+
+.sliderControls {
+    position: absolute;
+    right: 14px;
+    bottom: 14px;
+    display: flex;
+    gap: 8px;
+    z-index: 3;
+}
+
+.heroTextControls {
+    right: clamp(24px, 5vw, 58px);
+    bottom: clamp(24px, 5vw, 58px);
+}
+
+.publicHeroStats {
+    right: auto;
+    left: clamp(28px, 5vw, 58px);
+    bottom: 24px;
+    z-index: 2;
+    width: min(390px, calc(100% - 180px));
+    grid-template-columns: repeat(3, minmax(90px, 1fr));
+}
+
+.publicHero .heroBannerSlide {
+    padding-bottom: 118px;
 }
 
 .heroContent {
@@ -687,6 +744,109 @@ textarea:focus {
     gap: 14px;
 }
 
+.infoCarousel {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(320px, calc((100% - 32px) / 3));
+    gap: 16px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scroll-snap-type: x mandatory;
+    scrollbar-color: rgba(214, 179, 106, 0.58) rgba(255, 255, 255, 0.08);
+}
+
+.infoSlide {
+    min-height: 230px;
+    scroll-snap-align: start;
+}
+
+.membershipInfoSlide {
+    border-color: rgba(214, 179, 106, 0.55);
+    background:
+        linear-gradient(180deg, rgba(214, 179, 106, 0.18), rgba(92, 189, 115, 0.08)),
+        rgba(255, 255, 255, 0.07);
+}
+
+.membershipInfoSlide .button {
+    width: fit-content;
+    margin-top: 10px;
+}
+
+.membershipPreview,
+.membershipPlans {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.membershipCard,
+.membershipPlan,
+.membershipHero {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel);
+    box-shadow: var(--shadow);
+}
+
+.membershipCard,
+.membershipPlan {
+    display: grid;
+    gap: 12px;
+    padding: 22px;
+}
+
+.membershipCard.featured,
+.membershipPlan.featured {
+    border-color: rgba(214, 179, 106, 0.55);
+    background: linear-gradient(180deg, rgba(214, 179, 106, 0.18), rgba(255, 255, 255, 0.08));
+}
+
+.membershipCard h3,
+.membershipPlan h2 {
+    font-size: 24px;
+}
+
+.membershipCard strong,
+.membershipPlan strong {
+    color: #ffe8b6;
+    font-size: 30px;
+}
+
+.membershipCard p,
+.membershipPlan p,
+.membershipPlan li {
+    color: var(--muted);
+    line-height: 1.55;
+}
+
+.membershipPlan ul {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding-left: 18px;
+}
+
+.membershipPlan .button {
+    margin-top: 6px;
+}
+
+.membershipHero {
+    min-height: 430px;
+    display: grid;
+    align-items: end;
+    padding: clamp(28px, 5vw, 58px);
+    background:
+        linear-gradient(90deg, rgba(3, 7, 10, 0.88), rgba(3, 7, 10, 0.42)),
+        url("/assets/club-logo.png") center / cover no-repeat;
+}
+
+.membershipHero h1 {
+    max-width: 780px;
+    margin-top: 12px;
+    font-size: clamp(38px, 5vw, 76px);
+    line-height: 0.98;
+}
+
 .publicToast {
     position: fixed;
     right: 22px;
@@ -756,8 +916,13 @@ textarea:focus {
     .moduleGrid,
     .activityGrid,
     .publicInfo,
+    .membershipPlans,
     .gridForm {
         grid-template-columns: 1fr;
+    }
+
+    .infoCarousel {
+        grid-auto-columns: minmax(280px, 86vw);
     }
 
     .publicTopbar {
@@ -768,6 +933,20 @@ textarea:focus {
     .heroStats {
         position: static;
         margin-top: 28px;
+    }
+
+    .publicHeroStats {
+        width: 100%;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .heroBannerSlide {
+        padding-right: 0;
+        padding-bottom: 54px;
+    }
+
+    .publicHero .heroBannerSlide {
+        padding-bottom: 16px;
     }
 
     .sectionHeader,

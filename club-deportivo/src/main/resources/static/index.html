@@ -20,41 +20,103 @@
 
         <nav class="publicNav">
             <a href="#actividades-publicas">Actividades</a>
+            <a href="#membresias">Membresias</a>
             <button id="myActivitiesBtn" type="button" class="button ghost">Mis actividades</button>
+            <span id="publicUserBadge" class="userBadge hidden"></span>
+            <button id="logoutBtn" type="button" class="button ghost hidden">Cerrar sesion</button>
             <button id="openAuthBtn" type="button" class="button primary">Iniciar sesion</button>
-            <a class="button ghost" href="/admin.html">Administracion</a>
+            <button id="adminAccessBtn" type="button" class="button ghost">Administracion</button>
         </nav>
     </header>
 
     <main class="publicShell">
         <section class="publicHero standaloneHero">
-            <div>
-                <p class="eyebrow">Club Deportivo</p>
-                <h1>Entrena, reserva tu lugar y sigue tus actividades.</h1>
-                <p class="heroCopy">Consulta horarios, entrenadores y detalles de cada actividad. Inicia sesion o registrate para inscribirte.</p>
-                <div class="heroActions">
-                    <a class="button primary" href="#actividades-publicas">Explorar actividades</a>
-                    <button id="heroRegisterBtn" type="button" class="button success">Crear cuenta</button>
+            <div class="publicHeroCopy">
+                <div id="heroBannerTrack" class="heroBannerTrack">
+                    <article class="heroBannerSlide">
+                        <p class="eyebrow">Club Deportivo</p>
+                        <h1>Entrena, reserva tu lugar y sigue tus actividades.</h1>
+                        <p class="heroCopy">Consulta horarios, entrenadores y detalles de cada actividad. Inicia sesion o registrate para inscribirte.</p>
+                        <div class="heroActions">
+                            <a class="button primary" href="#actividades-publicas">Explorar actividades</a>
+                            <button id="heroRegisterBtn" type="button" class="button success">Crear cuenta</button>
+                        </div>
+                    </article>
+
+                    <article class="heroBannerSlide">
+                        <p class="eyebrow">Agenda del club</p>
+                        <h1>Actividades, horarios y entrenadores en un solo lugar.</h1>
+                        <p class="heroCopy">Consulta la agenda del club, revisa cada entrenamiento y administra tus inscripciones desde tu cuenta.</p>
+                        <div class="heroActions">
+                            <a class="button primary" href="#actividades-publicas">Ver actividades</a>
+                            <button id="heroMyActivitiesBtn" type="button" class="button ghost">Mis actividades</button>
+                        </div>
+                    </article>
+
+                    <article class="heroBannerSlide">
+                        <p class="eyebrow">Administracion</p>
+                        <h1>Gestion premium para operaciones deportivas.</h1>
+                        <p class="heroCopy">Usuarios, entrenadores, actividades, instalaciones, incidencias y reportes centralizados en una sola plataforma.</p>
+                    </article>
+
+                    <article class="heroBannerSlide">
+                        <p class="eyebrow">Agenda deportiva</p>
+                        <h1>Actividades y entrenadores conectados.</h1>
+                        <p class="heroCopy">El club organiza actividades, horarios y entrenadores desde un flujo administrativo centralizado.</p>
+                    </article>
+
+                    <article class="heroBannerSlide">
+                        <p class="eyebrow">Control administrativo</p>
+                        <h1>Usuarios, roles y administradores bajo control.</h1>
+                        <p class="heroCopy">La plataforma permite administrar altas, consultar usuarios y mantener la informacion operativa del club.</p>
+                    </article>
                 </div>
+            </div>
+            <div class="sliderControls heroTextControls">
+                <button id="prevHeroSlideBtn" type="button" class="iconButton" aria-label="Informacion anterior">&lt;</button>
+                <button id="nextHeroSlideBtn" type="button" class="iconButton" aria-label="Informacion siguiente">&gt;</button>
+            </div>
+            <div class="heroStats publicHeroStats" aria-label="Indicadores principales">
+                <article>
+                    <span>Usuarios</span>
+                    <strong>100+</strong>
+                </article>
+                <article>
+                    <span>Trabajadores</span>
+                    <strong>50</strong>
+                </article>
+                <article>
+                    <span>Control</span>
+                    <strong>24/7</strong>
+                </article>
             </div>
         </section>
 
-        <section class="section publicInfo">
-            <article class="moduleCard ready">
-                <span class="moduleIcon">01</span>
-                <h3>Horarios claros</h3>
-                <p>Consulta fecha, hora de inicio y hora de cierre de cada entrenamiento.</p>
-            </article>
-            <article class="moduleCard ready">
-                <span class="moduleIcon">02</span>
-                <h3>Entrenadores asignados</h3>
-                <p>Revisa quien dirige cada actividad antes de inscribirte.</p>
-            </article>
-            <article class="moduleCard ready">
-                <span class="moduleIcon">03</span>
-                <h3>Inscripcion digital</h3>
-                <p>Registra tu asistencia a actividades desde tu cuenta del club.</p>
-            </article>
+        <section id="informacion" class="section">
+            <div class="sectionHeader">
+                <div>
+                    <p class="eyebrow">Informacion del club</p>
+                    <h2>Explora servicios y beneficios</h2>
+                </div>
+            </div>
+            <div id="infoCarousel" class="infoCarousel" tabindex="0" aria-label="Informacion desplazable del club">
+                <article class="moduleCard ready infoSlide">
+                    <span class="moduleIcon">01</span>
+                    <h3>Horarios claros</h3>
+                    <p>Consulta fecha, hora de inicio y hora de cierre de cada entrenamiento disponible.</p>
+                </article>
+                <article class="moduleCard ready infoSlide">
+                    <span class="moduleIcon">02</span>
+                    <h3>Entrenadores asignados</h3>
+                    <p>Revisa quien dirige cada actividad, su especialidad y la programacion de sus sesiones.</p>
+                </article>
+                <article id="membresias" class="moduleCard ready infoSlide membershipInfoSlide">
+                    <span class="moduleIcon">03</span>
+                    <h3>Membresias</h3>
+                    <p>Compara planes, precios, duracion y beneficios para elegir el acceso que necesitas.</p>
+                    <a class="button primary" href="/membresias.html">Ver membresias</a>
+                </article>
+            </div>
         </section>
 
         <section id="actividades-publicas" class="section">
@@ -130,6 +192,26 @@
                 <label>Telefono<input name="telefono" autocomplete="tel"></label>
                 <label>Password<input name="password" type="password" autocomplete="new-password" required minlength="6"></label>
                 <button type="submit" class="button success">Crear cuenta</button>
+            </form>
+        </section>
+    </div>
+
+    <div id="adminPromptModal" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="adminPromptTitle">
+        <section class="loginSheet">
+            <button id="closeAdminPromptBtn" type="button" class="iconButton closeButton" aria-label="Cerrar acceso administrativo">x</button>
+            <p class="eyebrow">Administracion</p>
+            <h2 id="adminPromptTitle">¿Eres usuario administrativo?</h2>
+            <p class="detailText">Para entrar al panel de administracion debes validar una cuenta con rol ADMINISTRADOR.</p>
+
+            <div id="adminPromptActions" class="authTabs">
+                <button id="showAdminLoginBtn" type="button" class="button primary">Si, iniciar sesion</button>
+                <button id="cancelAdminLoginBtn" type="button" class="button ghost dark">Cancelar</button>
+            </div>
+
+            <form id="adminLoginForm" class="form authForm hidden">
+                <label>Correo<input name="correo" type="email" autocomplete="email" required></label>
+                <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+                <button type="submit" class="button success">Entrar a administracion</button>
             </form>
         </section>
     </div>
