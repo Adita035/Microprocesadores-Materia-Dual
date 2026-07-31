@@ -39,6 +39,7 @@ class SecurityConfig {
             .authorizeExchange {
                 it.pathMatchers("/", "/index.html", "/admin.html", "/membresias.html", "/styles.css", "/app.js", "/admin.js", "/membresias.js", "/favicon.ico", "/assets/**").permitAll()
                 it.pathMatchers(HttpMethod.GET, "/api/actividades/publicas", "/api/actividades/publicas/**").permitAll()
+                it.pathMatchers(HttpMethod.GET, "/api/membresias/publicas").permitAll()
                 it.pathMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                 it.pathMatchers(HttpMethod.POST, "/api/usuarios/admin").permitAll()
                 it.pathMatchers(HttpMethod.POST, "/api/usuarios/registro").permitAll()
