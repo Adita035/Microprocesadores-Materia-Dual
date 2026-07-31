@@ -2,6 +2,7 @@ const tokenKey = "clubDeportivoJwt";
 const userKey = "clubDeportivoUser";
 const publicActivitiesGrid = document.querySelector("#publicActivitiesGrid");
 const myActivitiesGrid = document.querySelector("#myActivitiesGrid");
+const myMembershipSummary = document.querySelector("#myMembershipSummary");
 const publicSessionStatus = document.querySelector("#publicSessionStatus");
 const publicUserBadge = document.querySelector("#publicUserBadge");
 const openAuthBtn = document.querySelector("#openAuthBtn");
@@ -168,6 +169,24 @@ function renderActivities(container, activities, emptyText) {
     });
 }
 
+function renderMembershipSummary(data) {
+    if (!data) {
+        myMembershipSummary.classList.add("hidden");
+        myMembershipSummary.innerHTML = "";
+        return;
+    }
+
+    myMembershipSummary.innerHTML = `
+        <span class="pill green">${data.estado || "ACTIVA"}</span>
+        <div>
+            <p class="eyebrow">Mi membresia</p>
+            <h2>${data.membresia.nombre}</h2>
+            <p>Vigencia: ${data.fechaInicio || "Sin fecha"} a ${data.fechaFin || "Sin fecha"}</p>
+        </div>
+    `;
+    myMembershipSummary.classList.remove("hidden");
+}
+
 async function loadPublicActivities() {
     const result = await request("/api/actividades/publicas", { auth: false });
     if (result.ok) {
@@ -182,6 +201,9 @@ async function loadMyActivities() {
         openAuthModal();
         return;
     }
+    const membership = await request("/api/membresias/mi-membresia");
+    renderMembershipSummary(membership.ok ? membership.body : null);
+
     const result = await request("/api/actividades/mis-inscripciones");
     if (result.ok) {
         renderActivities(myActivitiesGrid, result.body || [], "Todavia no tienes actividades inscritas.");
@@ -284,6 +306,7 @@ document.querySelector("#showLoginBtn").addEventListener("click", () => setAuthM
 document.querySelector("#showRegisterBtn").addEventListener("click", () => setAuthMode("register"));
 logoutBtn.addEventListener("click", () => {
     setSession("");
+    renderMembershipSummary(null);
     myActivitiesGrid.innerHTML = '<article class="emptyState">Inicia sesion para consultar tus actividades inscritas.</article>';
     showToast("Sesion cerrada.");
 });

@@ -18,6 +18,18 @@ INSERT INTO roles (nombre)
 VALUES ('SOPORTE_TECNICO')
 ON DUPLICATE KEY UPDATE nombre = VALUES(nombre);
 
+INSERT INTO membresias (nombre, descripcion, precio, duracion_dias, activa)
+SELECT 'Acceso Activo', 'Entrenamiento regular, consulta de actividades y acceso a beneficios iniciales del club.', 399.00, 30, TRUE
+WHERE NOT EXISTS (SELECT 1 FROM membresias m WHERE m.nombre = 'Acceso Activo');
+
+INSERT INTO membresias (nombre, descripcion, precio, duracion_dias, activa)
+SELECT 'Club Total', 'Prioridad en inscripciones, actividades seleccionadas y mejores beneficios para socios constantes.', 699.00, 30, TRUE
+WHERE NOT EXISTS (SELECT 1 FROM membresias m WHERE m.nombre = 'Club Total');
+
+INSERT INTO membresias (nombre, descripcion, precio, duracion_dias, activa)
+SELECT 'Alto Rendimiento', 'Agenda completa, beneficios extendidos y perfil ideal para usuarios de entrenamiento intensivo.', 999.00, 30, TRUE
+WHERE NOT EXISTS (SELECT 1 FROM membresias m WHERE m.nombre = 'Alto Rendimiento');
+
 INSERT INTO usuarios (nombre, apellido, correo, password, telefono, activo, rol_id)
 SELECT 'Mariana', 'Rios', 'mariana.rios@club.test', '$2a$10$gSFgzmuTfV8/qeasQBBlBOnAy6mDmLdv.T1Fz51.leK0ichTwpujW', '5551002001', TRUE, r.id
 FROM roles r
