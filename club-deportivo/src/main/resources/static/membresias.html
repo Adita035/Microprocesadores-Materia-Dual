@@ -35,48 +35,16 @@
         </section>
 
         <section class="section">
-            <div class="membershipPlans">
-                <article class="membershipPlan">
-                    <span class="pill green">Basica</span>
-                    <h2>Acceso Activo</h2>
-                    <strong>$399 MXN</strong>
-                    <p>Para usuarios que quieren empezar a entrenar con acceso controlado a actividades.</p>
-                    <ul>
-                        <li>Duracion de 30 dias</li>
-                        <li>Consulta de actividades disponibles</li>
-                        <li>Inscripcion a actividades abiertas</li>
-                        <li>Soporte basico del club</li>
-                    </ul>
-                    <button type="button" class="button primary" data-membership="Acceso Activo">Seleccionar</button>
-                </article>
-
-                <article class="membershipPlan featured">
-                    <span class="pill coral">Premium</span>
-                    <h2>Club Total</h2>
-                    <strong>$699 MXN</strong>
-                    <p>Para socios constantes que quieren mejores beneficios y prioridad operativa.</p>
-                    <ul>
-                        <li>Duracion de 30 dias</li>
-                        <li>Prioridad en inscripciones</li>
-                        <li>Acceso a actividades seleccionadas</li>
-                        <li>Beneficios internos del club</li>
-                    </ul>
-                    <button type="button" class="button success" data-membership="Club Total">Seleccionar</button>
-                </article>
-
-                <article class="membershipPlan">
-                    <span class="pill">Elite</span>
-                    <h2>Alto Rendimiento</h2>
-                    <strong>$999 MXN</strong>
-                    <p>Para usuarios que buscan una experiencia completa y seguimiento deportivo superior.</p>
-                    <ul>
-                        <li>Duracion de 30 dias</li>
-                        <li>Inscripciones con mayor prioridad</li>
-                        <li>Actividades premium disponibles</li>
-                        <li>Beneficios extendidos por perfil</li>
-                    </ul>
-                    <button type="button" class="button primary" data-membership="Alto Rendimiento">Seleccionar</button>
-                </article>
+            <div class="sectionHeader">
+                <div>
+                    <p class="eyebrow">Comparador</p>
+                    <h2>Planes disponibles</h2>
+                </div>
+                <span id="membershipSessionStatus" class="pill">Seleccion con cuenta activa</span>
+            </div>
+            <div id="currentMembership" class="currentMembership hidden"></div>
+            <div id="membershipPlans" class="membershipPlans">
+                <article class="emptyState">Cargando membresias...</article>
             </div>
         </section>
     </main>

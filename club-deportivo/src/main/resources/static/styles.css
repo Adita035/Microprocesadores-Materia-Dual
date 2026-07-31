@@ -635,6 +635,110 @@ textarea:focus {
     white-space: pre-wrap;
 }
 
+.visualOutput {
+    display: grid;
+    gap: 14px;
+    font-family: inherit;
+    white-space: normal;
+}
+
+.resultSummary,
+.resultEmpty,
+.resultCard {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.resultSummary,
+.resultEmpty {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px;
+}
+
+.resultSummary.success {
+    border-color: rgba(92, 189, 115, 0.34);
+    background: linear-gradient(135deg, rgba(92, 189, 115, 0.14), rgba(0, 96, 139, 0.1));
+}
+
+.resultSummary.error {
+    border-color: rgba(242, 102, 74, 0.42);
+    background: linear-gradient(135deg, rgba(242, 102, 74, 0.16), rgba(255, 255, 255, 0.05));
+}
+
+.resultSummary h3,
+.resultEmpty h3 {
+    margin-top: 4px;
+    font-size: 18px;
+}
+
+.resultSummary p:not(.eyebrow),
+.resultEmpty p {
+    color: var(--muted);
+}
+
+.resultGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.resultCard {
+    display: grid;
+    gap: 10px;
+    padding: 16px;
+}
+
+.resultCardHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.resultCard h3 {
+    margin-top: 4px;
+    font-size: 18px;
+}
+
+.resultCard p {
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+.resultMeta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.resultMeta span,
+.resultLine {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #dce9ee;
+    font-size: 13px;
+}
+
+.resultLine {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.resultLine span {
+    color: var(--muted);
+}
+
+.resultLine strong {
+    color: var(--text);
+}
+
 .overlay {
     position: fixed;
     inset: 0;
@@ -647,7 +751,7 @@ textarea:focus {
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 .detailSheet,
@@ -795,6 +899,54 @@ textarea:focus {
     padding: 22px;
 }
 
+.membershipPlan {
+    position: relative;
+    overflow: hidden;
+    min-height: 440px;
+    align-content: start;
+    transition:
+        transform 180ms ease,
+        border-color 180ms ease,
+        background 180ms ease;
+}
+
+.membershipPlan::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 7px;
+    background: var(--blue);
+}
+
+.membershipPlan::after {
+    content: "";
+    position: absolute;
+    inset: auto 18px 72px auto;
+    width: 86px;
+    height: 86px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.membershipPlan:hover {
+    transform: translateY(-6px);
+    border-color: rgba(214, 179, 106, 0.62);
+    background: var(--panel-strong);
+}
+
+.membershipPlan.starter::before {
+    background: linear-gradient(90deg, var(--green), var(--blue));
+}
+
+.membershipPlan.premium::before {
+    background: linear-gradient(90deg, var(--coral), var(--gold));
+}
+
+.membershipPlan.elite::before {
+    background: linear-gradient(90deg, var(--blue), var(--coral));
+}
+
 .membershipCard.featured,
 .membershipPlan.featured {
     border-color: rgba(214, 179, 106, 0.55);
@@ -812,6 +964,46 @@ textarea:focus {
     font-size: 30px;
 }
 
+.membershipPlanTop,
+.membershipPrice {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.membershipTier,
+.membershipDuration {
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    border-radius: 8px;
+    padding: 0 11px;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.membershipTier {
+    background: rgba(0, 96, 139, 0.22);
+    color: #bdefff;
+}
+
+.membershipDuration {
+    border: 1px solid rgba(92, 189, 115, 0.36);
+    color: #ceffdc;
+}
+
+.membershipPrice {
+    align-items: flex-end;
+    margin-top: 4px;
+}
+
+.membershipPrice span {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 800;
+}
+
 .membershipCard p,
 .membershipPlan p,
 .membershipPlan li {
@@ -819,15 +1011,49 @@ textarea:focus {
     line-height: 1.55;
 }
 
-.membershipPlan ul {
-    display: grid;
+.membershipBenefits {
+    display: flex;
+    flex-wrap: wrap;
     gap: 8px;
-    margin: 0;
-    padding-left: 18px;
+    margin-top: 4px;
+}
+
+.membershipBenefits span {
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    border-radius: 8px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #dce9ee;
+    font-size: 13px;
+    font-weight: 750;
 }
 
 .membershipPlan .button {
-    margin-top: 6px;
+    align-self: end;
+    margin-top: 14px;
+    z-index: 1;
+}
+
+.currentMembership {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(214, 179, 106, 0.44);
+    border-radius: 8px;
+    padding: 18px;
+    background: linear-gradient(135deg, rgba(214, 179, 106, 0.16), rgba(0, 96, 139, 0.12));
+    box-shadow: var(--shadow);
+}
+
+.currentMembership h2 {
+    margin-top: 4px;
+    font-size: 22px;
+}
+
+.currentMembership p:not(.eyebrow) {
+    margin-top: 5px;
+    color: var(--muted);
 }
 
 .membershipHero {
@@ -915,6 +1141,7 @@ textarea:focus {
     .heroStats,
     .moduleGrid,
     .activityGrid,
+    .resultGrid,
     .publicInfo,
     .membershipPlans,
     .gridForm {
