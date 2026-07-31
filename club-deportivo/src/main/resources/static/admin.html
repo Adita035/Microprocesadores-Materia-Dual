@@ -317,12 +317,20 @@
         <section id="reportes" class="section responseSection">
             <div class="sectionHeader">
                 <div>
-                    <p class="eyebrow">Respuesta del backend</p>
-                    <h2>Consola operativa</h2>
+                    <p class="eyebrow">Resultado operativo</p>
+                    <h2>Panel de respuesta</h2>
                 </div>
-                <span class="pill">JSON</span>
+                <span class="pill green">Vista clara</span>
             </div>
-            <pre id="output" class="output">Esperando una prueba...</pre>
+            <div id="output" class="output visualOutput">
+                <article class="resultEmpty">
+                    <span class="moduleIcon">OK</span>
+                    <div>
+                        <h3>Esperando una accion</h3>
+                        <p>Usa los botones del panel para consultar usuarios, entrenadores, actividades o estado de la API.</p>
+                    </div>
+                </article>
+            </div>
         </section>
 
         <div id="activityDetail" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="activityTitle">

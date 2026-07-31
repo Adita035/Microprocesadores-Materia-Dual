@@ -129,14 +129,180 @@ async function request(path, options = {}) {
 }
 
 function printResult(title, result) {
-    output.textContent = JSON.stringify({ prueba: title, ...result }, null, 2);
+    output.innerHTML = renderResult(title, result);
 }
 
 function printError(title, error) {
-    output.textContent = JSON.stringify({
-        prueba: title,
-        error: error.message || String(error),
-    }, null, 2);
+    output.innerHTML = renderMessageCard(title, error.message || String(error), false);
+}
+
+function renderResult(title, result) {
+    if (!result.ok) {
+        return renderMessageCard(title, result.body?.mensaje || result.statusText || "No se pudo completar la operacion.", false);
+    }
+
+    if (Array.isArray(result.body)) {
+        return renderListResult(title, result.body);
+    }
+
+    return renderMessageCard(title, successMessage(title, result.body), true, result.body);
+}
+
+function renderListResult(title, items) {
+    if (!items.length) {
+        return renderMessageCard(title, "No hay registros para mostrar.", true);
+    }
+
+    if (title.includes("usuarios") || title.includes("administradores")) {
+        return renderUsers(title, items);
+    }
+    if (title.includes("entrenadores")) {
+        return renderTrainers(title, items);
+    }
+    if (title.includes("actividades")) {
+        return renderActivitiesResult(title, items);
+    }
+
+    return `
+        ${renderSummaryHeader(title, `${items.length} registros encontrados`, true)}
+        <div class="resultGrid">
+            ${items.map((item) => renderGenericCard(item)).join("")}
+        </div>
+    `;
+}
+
+function renderUsers(title, users) {
+    return `
+        ${renderSummaryHeader(title, `${users.length} usuarios encontrados`, true)}
+        <div class="resultGrid">
+            ${users.map((user) => `
+                <article class="resultCard">
+                    <div class="resultCardHeader">
+                        <div>
+                            <p class="eyebrow">${user.rol || "USUARIO"}</p>
+                            <h3>${user.nombre} ${user.apellido}</h3>
+                        </div>
+                        <span class="pill ${user.tieneMembresia ? "green" : "coral"}">
+                            ${user.tieneMembresia ? "Con membresia" : "Sin membresia"}
+                        </span>
+                    </div>
+                    <p>${user.correo}</p>
+                    <div class="resultMeta">
+                        <span>Telefono: ${user.telefono || "Sin telefono"}</span>
+                        <span>Plan: ${user.membresia || "No asignado"}</span>
+                        <span>Renovacion: ${formatRenewal(user)}</span>
+                    </div>
+                </article>
+            `).join("")}
+        </div>
+    `;
+}
+
+function renderTrainers(title, trainers) {
+    return `
+        ${renderSummaryHeader(title, `${trainers.length} entrenadores encontrados`, true)}
+        <div class="resultGrid">
+            ${trainers.map((trainer) => `
+                <article class="resultCard">
+                    <div class="resultCardHeader">
+                        <div>
+                            <p class="eyebrow">${trainer.especialidad || "Especialidad"}</p>
+                            <h3>${trainer.usuario?.nombre || "Entrenador"} ${trainer.usuario?.apellido || ""}</h3>
+                        </div>
+                        <span class="pill green">Activo</span>
+                    </div>
+                    <p>${trainer.usuario?.correo || "Sin correo"}</p>
+                    <div class="resultMeta">
+                        <span>ID entrenador: ${trainer.id}</span>
+                        <span>Telefono: ${trainer.usuario?.telefono || "Sin telefono"}</span>
+                    </div>
+                </article>
+            `).join("")}
+        </div>
+    `;
+}
+
+function renderActivitiesResult(title, activities) {
+    return `
+        ${renderSummaryHeader(title, `${activities.length} actividades encontradas`, true)}
+        <div class="resultGrid">
+            ${activities.map((activity) => `
+                <article class="resultCard">
+                    <div class="resultCardHeader">
+                        <div>
+                            <p class="eyebrow">${activity.estado || "PENDIENTE"}</p>
+                            <h3>${activity.nombre}</h3>
+                        </div>
+                        <span class="pill green">${activity.entrenadores?.length || 0} entrenador(es)</span>
+                    </div>
+                    <p>${activity.descripcion || "Sin descripcion"}</p>
+                    <div class="resultMeta">
+                        <span>${formatSchedule(activity)}</span>
+                        <span>${trainerNames(activity)}</span>
+                    </div>
+                </article>
+            `).join("")}
+        </div>
+    `;
+}
+
+function renderMessageCard(title, message, ok, body = null) {
+    return `
+        ${renderSummaryHeader(title, message, ok)}
+        ${body ? `<article class="resultCard">${renderGenericDetails(body)}</article>` : ""}
+    `;
+}
+
+function renderSummaryHeader(title, message, ok) {
+    return `
+        <article class="resultSummary ${ok ? "success" : "error"}">
+            <span class="moduleIcon">${ok ? "OK" : "!"}</span>
+            <div>
+                <p class="eyebrow">${title}</p>
+                <h3>${message}</h3>
+            </div>
+        </article>
+    `;
+}
+
+function renderGenericCard(item) {
+    return `<article class="resultCard">${renderGenericDetails(item)}</article>`;
+}
+
+function renderGenericDetails(item) {
+    if (!item || typeof item !== "object") {
+        return `<p>${item || "Operacion completada"}</p>`;
+    }
+
+    return Object.entries(item)
+        .filter(([, value]) => value !== null && value !== undefined && typeof value !== "object")
+        .map(([key, value]) => `
+            <div class="resultLine">
+                <span>${labelFor(key)}</span>
+                <strong>${value}</strong>
+            </div>
+        `).join("") || "<p>Operacion completada correctamente.</p>";
+}
+
+function successMessage(title, body) {
+    if (body?.mensaje) return body.mensaje;
+    if (title.includes("Crear")) return "Registro creado correctamente.";
+    if (title.includes("Login")) return "Sesion iniciada correctamente.";
+    if (title.includes("Health")) return "La API esta disponible.";
+    return "Operacion completada correctamente.";
+}
+
+function labelFor(key) {
+    return key
+        .replace(/([A-Z])/g, " $1")
+        .replace(/^./, (letter) => letter.toUpperCase());
+}
+
+function formatRenewal(user) {
+    if (!user.tieneMembresia) return "Sin membresia";
+    if (user.diasParaRenovar === null || user.diasParaRenovar === undefined) return "Sin fecha";
+    if (user.diasParaRenovar === 0) return "Renovar hoy";
+    return `${user.diasParaRenovar} dias`;
 }
 
 function activityImageUrl() {
@@ -441,7 +607,7 @@ document.querySelector("#closeLoginModalBtn").addEventListener("click", closeLog
 
 document.querySelector("#clearTokenBtn").addEventListener("click", () => {
     setSession("");
-    output.textContent = "Token eliminado. Prueba listar usuarios para confirmar que el endpoint protegido responde 401/403.";
+    output.innerHTML = renderMessageCard("Sesion", "Token eliminado. Vuelve a iniciar sesion para usar el panel.", true);
     window.location.replace("/");
 });
 
