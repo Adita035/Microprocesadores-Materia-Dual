@@ -3,6 +3,7 @@ package com.clubdeportivo.dto
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
+import java.time.LocalDate
 
 data class LoginRequest(
     @field:Email
@@ -65,4 +66,9 @@ data class UsuarioResponse(
     val correo: String,
     val telefono: String?,
     val rol: String,
+    val tieneMembresia: Boolean = false,
+    val membresia: String? = null,
+    val membresiaEstado: String? = null,
+    val membresiaFechaFin: LocalDate? = null,
+    val diasParaRenovar: Long? = null,
 )

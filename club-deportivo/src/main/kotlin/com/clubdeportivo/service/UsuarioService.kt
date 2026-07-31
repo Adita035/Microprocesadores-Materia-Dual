@@ -5,21 +5,28 @@ import com.clubdeportivo.dto.CrearUsuarioRequest
 import com.clubdeportivo.dto.UsuarioResponse
 import com.clubdeportivo.entity.Rol
 import com.clubdeportivo.entity.Usuario
+import com.clubdeportivo.entity.UsuarioMembresia
 import com.clubdeportivo.exception.BadRequestException
 import com.clubdeportivo.exception.ConflictException
 import com.clubdeportivo.mapper.toResponse
+import com.clubdeportivo.repository.MembresiaRepository
 import com.clubdeportivo.repository.RolRepository
+import com.clubdeportivo.repository.UsuarioMembresiaRepository
 import com.clubdeportivo.repository.UsuarioRepository
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
 @Service
 class UsuarioService(
     private val usuarioRepository: UsuarioRepository,
     private val rolRepository: RolRepository,
     private val passwordEncoder: PasswordEncoder,
+    private val usuarioMembresiaRepository: UsuarioMembresiaRepository,
+    private val membresiaRepository: MembresiaRepository,
 ) {
     private val rolesPermitidos = setOf(
         "USUARIO",
@@ -34,6 +41,7 @@ class UsuarioService(
             .flatMap { usuario ->
                 rolRepository.findById(usuario.rolId)
                     .map { rol -> usuario.toResponse(rol) }
+                    .flatMap { response -> agregarMembresiaActiva(usuario, response) }
             }
 
     fun listarAdministradores(): Flux<UsuarioResponse> =
@@ -145,4 +153,37 @@ class UsuarioService(
         return rolRepository.findByNombre(rolNormalizado)
             .switchIfEmpty(Mono.error(BadRequestException("El rol $rolNormalizado no existe en la base de datos")))
     }
+
+    private fun agregarMembresiaActiva(usuario: Usuario, response: UsuarioResponse): Mono<UsuarioResponse> {
+        val usuarioId = usuario.id ?: return Mono.just(response)
+        return usuarioMembresiaRepository.findFirstByUsuarioIdAndEstado(usuarioId, "ACTIVA")
+            .flatMap { relacion -> construirRespuestaConMembresia(response, relacion) }
+            .defaultIfEmpty(response)
+    }
+
+    private fun construirRespuestaConMembresia(
+        response: UsuarioResponse,
+        relacion: UsuarioMembresia,
+    ): Mono<UsuarioResponse> =
+        membresiaRepository.findById(relacion.membresiaId)
+            .map { membresia ->
+                response.copy(
+                    tieneMembresia = true,
+                    membresia = membresia.nombre,
+                    membresiaEstado = relacion.estado,
+                    membresiaFechaFin = relacion.fechaFin,
+                    diasParaRenovar = calcularDiasParaRenovar(relacion.fechaFin),
+                )
+            }
+            .defaultIfEmpty(
+                response.copy(
+                    tieneMembresia = true,
+                    membresiaEstado = relacion.estado,
+                    membresiaFechaFin = relacion.fechaFin,
+                    diasParaRenovar = calcularDiasParaRenovar(relacion.fechaFin),
+                ),
+            )
+
+    private fun calcularDiasParaRenovar(fechaFin: LocalDate?): Long? =
+        fechaFin?.let { ChronoUnit.DAYS.between(LocalDate.now(), it).coerceAtLeast(0) }
 }
