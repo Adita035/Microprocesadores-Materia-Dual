@@ -24,6 +24,10 @@ data class SeleccionarMembresiaRequest(
     val membresiaId: Long,
 )
 
+data class ActualizarEstadoMembresiaRequest(
+    val activa: Boolean,
+)
+
 data class MembresiaResponse(
     val id: Long,
     val nombre: String,

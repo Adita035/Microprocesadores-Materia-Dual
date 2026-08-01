@@ -1,5 +1,6 @@
 package com.clubdeportivo.service
 
+import com.clubdeportivo.dto.ActualizarEstadoMembresiaRequest
 import com.clubdeportivo.dto.CrearMembresiaRequest
 import com.clubdeportivo.dto.MembresiaResponse
 import com.clubdeportivo.dto.SeleccionMembresiaResponse
@@ -41,6 +42,12 @@ class MembresiaService(
 
     fun listarActivas(): Flux<MembresiaResponse> =
         membresiaRepository.findByActivaTrue().map(::toResponse)
+
+    fun actualizarEstado(id: Long, request: ActualizarEstadoMembresiaRequest): Mono<MembresiaResponse> =
+        membresiaRepository.findById(id)
+            .switchIfEmpty(Mono.error(NotFoundException("Membresia no encontrada")))
+            .flatMap { membresia -> membresiaRepository.save(membresia.copy(activa = request.activa)) }
+            .map(::toResponse)
 
     fun seleccionar(correo: String, request: SeleccionarMembresiaRequest): Mono<SeleccionMembresiaResponse> =
         usuarioRepository.findByCorreo(correo)

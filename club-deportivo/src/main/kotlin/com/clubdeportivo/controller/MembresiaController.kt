@@ -1,6 +1,7 @@
 package com.clubdeportivo.controller
 
 import com.clubdeportivo.dto.CrearMembresiaRequest
+import com.clubdeportivo.dto.ActualizarEstadoMembresiaRequest
 import com.clubdeportivo.dto.MembresiaResponse
 import com.clubdeportivo.dto.SeleccionMembresiaResponse
 import com.clubdeportivo.dto.SeleccionarMembresiaRequest
@@ -10,6 +11,8 @@ import jakarta.validation.Valid
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -35,6 +38,14 @@ class MembresiaController(
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     fun crear(@Valid @RequestBody request: CrearMembresiaRequest): Mono<MembresiaResponse> =
         membresiaService.crear(request)
+
+    @PatchMapping("/{id}/estado")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    fun actualizarEstado(
+        @PathVariable id: Long,
+        @Valid @RequestBody request: ActualizarEstadoMembresiaRequest,
+    ): Mono<MembresiaResponse> =
+        membresiaService.actualizarEstado(id, request)
 
     @PostMapping("/seleccion")
     @PreAuthorize("isAuthenticated()")

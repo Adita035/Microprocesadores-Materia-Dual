@@ -10,7 +10,7 @@
 </head>
 <body>
     <aside class="sidebar" aria-label="Navegacion principal">
-        <a class="brand" href="#dashboard" aria-label="Club Deportivo">
+        <a class="brand" href="#portal" aria-label="Club Deportivo">
             <span class="brandMark logoMark"></span>
             <span>
                 <strong>Club Deportivo</strong>
@@ -19,12 +19,12 @@
         </a>
 
         <nav class="nav">
-            <a href="#portal" class="active">Actividades club</a>
-            <a href="#dashboard">Administracion</a>
+            <a href="#portal" class="active">Inicio</a>
             <a href="#operacion">Operacion</a>
             <a href="#actividades">Actividades</a>
             <a href="#usuarios">Usuarios</a>
             <a href="#entrenadores">Entrenadores</a>
+            <a href="#membresias-admin">Membresias</a>
             <a href="#reportes">Reportes</a>
         </nav>
 
@@ -78,19 +78,6 @@
             </div>
         </section>
 
-        <section id="catalogo" class="section">
-            <div class="sectionHeader">
-                <div>
-                    <p class="eyebrow">Vista de usuarios</p>
-                    <h2>Actividades disponibles</h2>
-                </div>
-                <span class="pill green">Agenda publica</span>
-            </div>
-            <div id="publicActivitiesGrid" class="activityGrid">
-                <article class="emptyState">Cargando actividades...</article>
-            </div>
-        </section>
-
         <section id="operacion" class="section">
             <div class="sectionHeader">
                 <div>
@@ -121,16 +108,73 @@
                     <h3>Actividades</h3>
                     <p>Programacion, asignacion y cierre de sesiones.</p>
                 </article>
-                <article class="moduleCard">
+                <article class="moduleCard ready">
                     <span class="moduleIcon">05</span>
+                    <h3>Membresias</h3>
+                    <p>Planes, vigencia y estado de acceso de usuarios.</p>
+                </article>
+                <article class="moduleCard">
+                    <span class="moduleIcon">06</span>
                     <h3>Instalaciones</h3>
                     <p>Disponibilidad y solicitudes operativas.</p>
                 </article>
                 <article class="moduleCard">
-                    <span class="moduleIcon">06</span>
+                    <span class="moduleIcon">07</span>
                     <h3>Incidencias</h3>
                     <p>Seguimiento tecnico y mantenimiento.</p>
                 </article>
+            </div>
+        </section>
+
+        <section id="membresias-admin" class="workspace">
+            <div class="panel">
+                <div class="panelHeader">
+                    <div>
+                        <p class="eyebrow">Planes del club</p>
+                        <h2>Crear membresia</h2>
+                    </div>
+                    <span class="pill green">Membresia</span>
+                </div>
+
+                <form id="membershipForm" class="form gridForm">
+                    <label>Nombre<input name="nombre" required value="Plan Familiar"></label>
+                    <label>Precio<input name="precio" type="number" min="0" step="0.01" required value="1299.00"></label>
+                    <label>Duracion dias<input name="duracionDias" type="number" min="1" required value="30"></label>
+                    <label>Activa
+                        <select name="activa">
+                            <option value="true">Activa</option>
+                            <option value="false">Inactiva</option>
+                        </select>
+                    </label>
+                    <label>Descripcion<input name="descripcion" value="Acceso extendido para socios con beneficios especiales"></label>
+                    <button type="submit" class="button primary">Crear membresia</button>
+                </form>
+            </div>
+
+            <div class="panel">
+                <div class="panelHeader">
+                    <div>
+                        <p class="eyebrow">Gestion</p>
+                        <h2>Consultar y cambiar estado</h2>
+                    </div>
+                    <span class="pill coral">Admin</span>
+                </div>
+
+                <form id="membershipStatusForm" class="form">
+                    <label>ID membresia<input name="membresiaId" type="number" min="1" required value="1"></label>
+                    <label>Estado
+                        <select name="activa">
+                            <option value="true">Activar</option>
+                            <option value="false">Desactivar</option>
+                        </select>
+                    </label>
+                    <button type="submit" class="button success">Actualizar estado</button>
+                </form>
+
+                <div class="quickActions">
+                    <button id="membershipsBtn" type="button" class="button ghost dark">Listar membresias</button>
+                    <button id="membershipUsersBtn" type="button" class="button ghost dark">Usuarios con membresia</button>
+                </div>
             </div>
         </section>
 
@@ -228,6 +272,7 @@
                     <button id="adminsBtn" type="button" class="button ghost dark">Listar administradores</button>
                     <button id="trainersBtn" type="button" class="button ghost dark">Listar entrenadores</button>
                     <button id="activitiesBtn" type="button" class="button ghost dark">Listar actividades</button>
+                    <button id="membershipsQuickBtn" type="button" class="button ghost dark">Listar membresias</button>
                 </div>
             </div>
         </section>
@@ -333,41 +378,6 @@
             </div>
         </section>
 
-        <div id="activityDetail" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="activityTitle">
-            <section class="detailSheet">
-                <button id="closeDetailBtn" type="button" class="iconButton closeButton" aria-label="Cerrar detalle">x</button>
-                <div id="activityImage" class="detailImage"></div>
-                <div class="detailContent">
-                    <p id="activityState" class="eyebrow">Actividad</p>
-                    <h2 id="activityTitle">Detalle de actividad</h2>
-                    <p id="activityDescription" class="detailText"></p>
-                    <dl class="detailList">
-                        <div>
-                            <dt>Horario</dt>
-                            <dd id="activitySchedule">Sin horario</dd>
-                        </div>
-                        <div>
-                            <dt>Entrenador</dt>
-                            <dd id="activityTrainer">Sin entrenador asignado</dd>
-                        </div>
-                    </dl>
-                    <button id="enrollBtn" type="button" class="button success">Inscribirme</button>
-                </div>
-            </section>
-        </div>
-
-        <div id="loginModal" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modalLoginTitle">
-            <section class="loginSheet">
-                <button id="closeLoginModalBtn" type="button" class="iconButton closeButton" aria-label="Cerrar login">x</button>
-                <p class="eyebrow">Acceso requerido</p>
-                <h2 id="modalLoginTitle">Iniciar sesion</h2>
-                <form id="modalLoginForm" class="form">
-                    <label>Correo<input name="correo" type="email" autocomplete="email" required></label>
-                    <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
-                    <button type="submit" class="button primary">Entrar e inscribirme</button>
-                </form>
-            </section>
-        </div>
     </main>
 
     <script src="/admin.js"></script>
