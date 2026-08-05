@@ -69,13 +69,13 @@ function formToJson(form) {
             .filter(([, value]) => String(value).trim() !== "")
             .map(([key, value]) => {
                 const normalizedValue = String(value).trim();
-                if (["usuarioId", "actividadId", "entrenadorId", "membresiaId", "duracionDias"].includes(key)) {
+                if (["usuarioId", "actividadId", "entrenadorId", "membresiaId", "duracionDias", "instalacionId", "capacidad"].includes(key)) {
                     return [key, Number(normalizedValue)];
                 }
                 if (key === "precio") {
                     return [key, Number(normalizedValue)];
                 }
-                if (key === "activa") {
+                if (["activa", "disponible"].includes(key)) {
                     return [key, normalizedValue === "true"];
                 }
                 return [key, normalizedValue];
@@ -166,6 +166,9 @@ function renderListResult(title, items) {
     if (title.includes("membresias")) {
         return renderMemberships(title, items);
     }
+    if (title.includes("instalaciones") || title.includes("disponibles")) {
+        return renderFacilities(title, items);
+    }
 
     return `
         ${renderSummaryHeader(title, `${items.length} registros encontrados`, true)}
@@ -222,6 +225,32 @@ function renderMemberships(title, memberships) {
                         <span>ID: ${membership.id}</span>
                         <span>Precio: ${money(membership.precio)}</span>
                         <span>Duracion: ${membership.duracionDias || 0} dias</span>
+                    </div>
+                </article>
+            `).join("")}
+        </div>
+    `;
+}
+
+function renderFacilities(title, facilities) {
+    return `
+        ${renderSummaryHeader(title, `${facilities.length} instalaciones encontradas`, true)}
+        <div class="resultGrid">
+            ${facilities.map((facility) => `
+                <article class="resultCard">
+                    <div class="resultCardHeader">
+                        <div>
+                            <p class="eyebrow">${facility.disponible ? "DISPONIBLE" : "NO DISPONIBLE"}</p>
+                            <h3>${facility.nombre}</h3>
+                        </div>
+                        <span class="pill ${facility.disponible ? "green" : "coral"}">
+                            ${facility.disponible ? "Operativa" : "Bloqueada"}
+                        </span>
+                    </div>
+                    <p>${facility.descripcion || "Sin descripcion"}</p>
+                    <div class="resultMeta">
+                        <span>ID: ${facility.id}</span>
+                        <span>Capacidad: ${facility.capacidad || 0}</span>
                     </div>
                 </article>
             `).join("")}
@@ -500,6 +529,35 @@ document.querySelector("#membershipStatusForm").addEventListener("submit", async
     }
 });
 
+document.querySelector("#facilityForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const title = "Crear instalacion";
+    try {
+        const result = await request("/api/instalaciones", {
+            method: "POST",
+            body: formToJson(event.currentTarget),
+        });
+        printResult(title, result);
+    } catch (error) {
+        printError(title, error);
+    }
+});
+
+document.querySelector("#facilityStatusForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const title = "Actualizar instalacion";
+    const data = formToJson(event.currentTarget);
+    try {
+        const result = await request(`/api/instalaciones/${data.instalacionId}/disponibilidad`, {
+            method: "PATCH",
+            body: { disponible: data.disponible },
+        });
+        printResult(title, result);
+    } catch (error) {
+        printError(title, error);
+    }
+});
+
 document.querySelector("#healthBtn").addEventListener("click", async () => {
     const title = "Health";
     try {
@@ -522,6 +580,17 @@ document.querySelector("#adminsBtn").addEventListener("click", async () => {
     const title = "Listar administradores";
     try {
         printResult(title, await request("/api/usuarios/administradores/listar"));
+    } catch (error) {
+        printError(title, error);
+    }
+});
+
+document.querySelector("#usersByRoleForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const data = formToJson(event.currentTarget);
+    const title = `Listar usuarios ${data.rol}`;
+    try {
+        printResult(title, await request(`/api/usuarios/rol/${data.rol}`));
     } catch (error) {
         printError(title, error);
     }
@@ -569,6 +638,19 @@ document.querySelector("#membershipUsersBtn").addEventListener("click", async ()
         printError(title, error);
     }
 });
+
+async function listFacilities(title = "Listar instalaciones", onlyAvailable = false) {
+    try {
+        const path = onlyAvailable ? "/api/instalaciones/disponibles" : "/api/instalaciones";
+        printResult(title, await request(path));
+    } catch (error) {
+        printError(title, error);
+    }
+}
+
+document.querySelector("#facilitiesBtn").addEventListener("click", () => listFacilities());
+document.querySelector("#facilitiesQuickBtn").addEventListener("click", () => listFacilities());
+document.querySelector("#availableFacilitiesBtn").addEventListener("click", () => listFacilities("Listar instalaciones disponibles", true));
 
 document.querySelector("#prevAdminHeroSlideBtn").addEventListener("click", () => moveAdminHeroSlide(-1));
 document.querySelector("#nextAdminHeroSlideBtn").addEventListener("click", () => moveAdminHeroSlide(1));

@@ -25,6 +25,7 @@
             <a href="#usuarios">Usuarios</a>
             <a href="#entrenadores">Entrenadores</a>
             <a href="#membresias-admin">Membresias</a>
+            <a href="#instalaciones-admin">Instalaciones</a>
             <a href="#reportes">Reportes</a>
         </nav>
 
@@ -113,7 +114,7 @@
                     <h3>Membresias</h3>
                     <p>Planes, vigencia y estado de acceso de usuarios.</p>
                 </article>
-                <article class="moduleCard">
+                <article class="moduleCard ready">
                     <span class="moduleIcon">06</span>
                     <h3>Instalaciones</h3>
                     <p>Disponibilidad y solicitudes operativas.</p>
@@ -123,6 +124,57 @@
                     <h3>Incidencias</h3>
                     <p>Seguimiento tecnico y mantenimiento.</p>
                 </article>
+            </div>
+        </section>
+
+        <section id="instalaciones-admin" class="workspace">
+            <div class="panel">
+                <div class="panelHeader">
+                    <div>
+                        <p class="eyebrow">Espacios del club</p>
+                        <h2>Crear instalacion</h2>
+                    </div>
+                    <span class="pill green">Instalacion</span>
+                </div>
+
+                <form id="facilityForm" class="form gridForm">
+                    <label>Nombre<input name="nombre" required value="Cancha multiusos"></label>
+                    <label>Capacidad<input name="capacidad" type="number" min="1" required value="40"></label>
+                    <label>Disponible
+                        <select name="disponible">
+                            <option value="true">Disponible</option>
+                            <option value="false">No disponible</option>
+                        </select>
+                    </label>
+                    <label>Descripcion<input name="descripcion" value="Espacio para clases, torneos internos y entrenamiento grupal"></label>
+                    <button type="submit" class="button primary">Crear instalacion</button>
+                </form>
+            </div>
+
+            <div class="panel">
+                <div class="panelHeader">
+                    <div>
+                        <p class="eyebrow">Disponibilidad</p>
+                        <h2>Actualizar instalacion</h2>
+                    </div>
+                    <span class="pill coral">Admin</span>
+                </div>
+
+                <form id="facilityStatusForm" class="form">
+                    <label>ID instalacion<input name="instalacionId" type="number" min="1" required value="1"></label>
+                    <label>Disponibilidad
+                        <select name="disponible">
+                            <option value="true">Disponible</option>
+                            <option value="false">No disponible</option>
+                        </select>
+                    </label>
+                    <button type="submit" class="button success">Actualizar disponibilidad</button>
+                </form>
+
+                <div class="quickActions">
+                    <button id="facilitiesBtn" type="button" class="button ghost dark">Listar instalaciones</button>
+                    <button id="availableFacilitiesBtn" type="button" class="button ghost dark">Listar disponibles</button>
+                </div>
             </div>
         </section>
 
@@ -236,9 +288,9 @@
                 <div class="splitForms">
                     <form id="adminForm" class="form">
                         <h3>Primer administrador</h3>
-                        <label>Nombre<input name="nombre" autocomplete="given-name" required value="Admin"></label>
-                        <label>Apellido<input name="apellido" autocomplete="family-name" required value="Principal"></label>
-                        <label>Correo<input name="correo" type="email" autocomplete="email" required value="admin@club.test"></label>
+                        <label>Nombre<input name="nombre" autocomplete="given-name" required value="Alejandro"></label>
+                        <label>Apellido<input name="apellido" autocomplete="family-name" required value="Morales"></label>
+                        <label>Correo<input name="correo" type="email" autocomplete="email" required value="alejandro.morales@adminclub.com"></label>
                         <label>Telefono<input name="telefono" autocomplete="tel" value="5551234567"></label>
                         <label>Password<input name="password" type="password" autocomplete="new-password" required minlength="6" value="123456"></label>
                         <button type="submit" class="button primary">Crear admin</button>
@@ -246,7 +298,7 @@
 
                     <form id="loginForm" class="form accentForm">
                         <h3>Iniciar sesion</h3>
-                        <label>Correo<input name="correo" type="email" autocomplete="email" required value="admin@club.test"></label>
+                        <label>Correo<input name="correo" type="email" autocomplete="email" required value="alejandro.morales@adminclub.com"></label>
                         <label>Password<input name="password" type="password" autocomplete="current-password" required value="123456"></label>
                         <button type="submit" class="button success">Entrar</button>
                     </form>
@@ -273,7 +325,21 @@
                     <button id="trainersBtn" type="button" class="button ghost dark">Listar entrenadores</button>
                     <button id="activitiesBtn" type="button" class="button ghost dark">Listar actividades</button>
                     <button id="membershipsQuickBtn" type="button" class="button ghost dark">Listar membresias</button>
+                    <button id="facilitiesQuickBtn" type="button" class="button ghost dark">Listar instalaciones</button>
                 </div>
+
+                <form id="usersByRoleForm" class="form roleFilterForm">
+                    <label>Listar por rol
+                        <select name="rol" required>
+                            <option value="USUARIO">USUARIO</option>
+                            <option value="TRABAJADOR">TRABAJADOR</option>
+                            <option value="ENTRENADOR">ENTRENADOR</option>
+                            <option value="ADMINISTRADOR">ADMINISTRADOR</option>
+                            <option value="SOPORTE_TECNICO">SOPORTE_TECNICO</option>
+                        </select>
+                    </label>
+                    <button type="submit" class="button primary">Listar rol</button>
+                </form>
             </div>
         </section>
 
@@ -288,9 +354,9 @@
                 </div>
 
                 <form id="additionalAdminForm" class="form gridForm">
-                    <label>Nombre<input name="nombre" autocomplete="given-name" required value="Admin"></label>
-                    <label>Apellido<input name="apellido" autocomplete="family-name" required value="Secundario"></label>
-                    <label>Correo<input name="correo" type="email" autocomplete="email" required value="admin2@club.test"></label>
+                    <label>Nombre<input name="nombre" autocomplete="given-name" required value="Patricia"></label>
+                    <label>Apellido<input name="apellido" autocomplete="family-name" required value="Luna"></label>
+                    <label>Correo<input name="correo" type="email" autocomplete="email" required value="patricia.luna@adminclub.com"></label>
                     <label>Telefono<input name="telefono" autocomplete="tel" value="5554443333"></label>
                     <label>Password<input name="password" type="password" autocomplete="new-password" required minlength="6" value="123456"></label>
                     <button type="submit" class="button primary">Crear administrador</button>
@@ -320,14 +386,13 @@
                 </div>
 
                 <form id="userForm" class="form gridForm">
-                    <label>Nombre<input name="nombre" autocomplete="given-name" required value="Usuario"></label>
-                    <label>Apellido<input name="apellido" autocomplete="family-name" required value="Prueba"></label>
-                    <label>Correo<input name="correo" type="email" autocomplete="email" required value="usuario@club.test"></label>
+                    <label>Nombre<input name="nombre" autocomplete="given-name" required value="Roberto"></label>
+                    <label>Apellido<input name="apellido" autocomplete="family-name" required value="Mendoza"></label>
+                    <label>Correo<input name="correo" type="email" autocomplete="email" required value="roberto.mendoza@workerclub.com"></label>
                     <label>Telefono<input name="telefono" autocomplete="tel" value="5550001111"></label>
                     <label>Password<input name="password" type="password" autocomplete="new-password" required minlength="6" value="123456"></label>
                     <label>Rol
                         <select name="rol" required>
-                            <option value="USUARIO">USUARIO</option>
                             <option value="TRABAJADOR">TRABAJADOR</option>
                             <option value="ENTRENADOR">ENTRENADOR</option>
                             <option value="ADMINISTRADOR">ADMINISTRADOR</option>
@@ -348,9 +413,9 @@
                 </div>
 
                 <form id="trainerForm" class="form gridForm">
-                    <label>Nombre<input name="nombre" autocomplete="given-name" required value="Entrenador"></label>
-                    <label>Apellido<input name="apellido" autocomplete="family-name" required value="Principal"></label>
-                    <label>Correo<input name="correo" type="email" autocomplete="email" required value="entrenador@club.test"></label>
+                    <label>Nombre<input name="nombre" autocomplete="given-name" required value="Mariana"></label>
+                    <label>Apellido<input name="apellido" autocomplete="family-name" required value="Rios"></label>
+                    <label>Correo<input name="correo" type="email" autocomplete="email" required value="mariana.rios@coachclub.com"></label>
                     <label>Telefono<input name="telefono" autocomplete="tel" value="5552223333"></label>
                     <label>Password<input name="password" type="password" autocomplete="new-password" required minlength="6" value="123456"></label>
                     <label>Especialidad<input name="especialidad" required value="Natacion"></label>
