@@ -13,6 +13,7 @@ import com.clubdeportivo.mapper.toResponse
 import com.clubdeportivo.repository.EntrenadorRepository
 import com.clubdeportivo.repository.RolRepository
 import com.clubdeportivo.repository.UsuarioRepository
+import com.clubdeportivo.util.CorreoRolResolver
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
@@ -46,7 +47,8 @@ class EntrenadorService(
             }
 
     fun registrar(request: RegistrarEntrenadorRequest): Mono<EntrenadorResponse> =
-        usuarioRepository.existsByCorreo(request.correo)
+        Mono.fromCallable { CorreoRolResolver.validarRol(request.correo, "ENTRENADOR") }
+            .then(usuarioRepository.existsByCorreo(request.correo))
             .flatMap { existe ->
                 if (existe) {
                     Mono.error(ConflictException("Ya existe un usuario con ese correo"))

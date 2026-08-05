@@ -7,6 +7,7 @@ import com.clubdeportivo.mapper.toResponse
 import com.clubdeportivo.repository.RolRepository
 import com.clubdeportivo.repository.UsuarioRepository
 import com.clubdeportivo.security.JwtService
+import com.clubdeportivo.util.CorreoRolResolver
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
@@ -28,6 +29,7 @@ class AuthService(
                 } else {
                     rolRepository.findById(usuario.rolId)
                         .map { rol ->
+                            CorreoRolResolver.validarRol(usuario.correo, rol.nombre)
                             AuthResponse(
                                 token = jwtService.generateToken(usuario, rol),
                                 usuario = usuario.toResponse(rol),

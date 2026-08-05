@@ -55,8 +55,7 @@ data class CrearUsuarioRequest(
     @field:Size(min = 6)
     val password: String,
 
-    @field:NotBlank
-    val rol: String,
+    val rol: String? = null,
 )
 
 data class UsuarioResponse(

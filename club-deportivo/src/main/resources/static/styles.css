@@ -612,6 +612,12 @@ textarea:focus {
     margin-top: 14px;
 }
 
+.roleFilterForm {
+    margin-top: 16px;
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+}
+
 .responseSection {
     border: 1px solid var(--line);
     border-radius: 8px;

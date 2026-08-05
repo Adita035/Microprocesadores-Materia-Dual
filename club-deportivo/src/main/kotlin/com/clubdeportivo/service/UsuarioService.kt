@@ -13,6 +13,7 @@ import com.clubdeportivo.repository.MembresiaRepository
 import com.clubdeportivo.repository.RolRepository
 import com.clubdeportivo.repository.UsuarioMembresiaRepository
 import com.clubdeportivo.repository.UsuarioRepository
+import com.clubdeportivo.util.CorreoRolResolver
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
@@ -45,14 +46,23 @@ class UsuarioService(
             }
 
     fun listarAdministradores(): Flux<UsuarioResponse> =
-        obtenerRolPermitido("ADMINISTRADOR")
+        listarPorRol("ADMINISTRADOR")
+
+    fun listarPorRol(nombreRol: String): Flux<UsuarioResponse> =
+        obtenerRolPermitido(nombreRol)
             .flatMapMany { rol ->
-                usuarioRepository.findByRolId(requireNotNull(rol.id) { "El rol ADMINISTRADOR debe tener id" })
+                usuarioRepository.findByRolId(requireNotNull(rol.id) { "El rol $nombreRol debe tener id" })
                     .map { usuario -> usuario.toResponse(rol) }
+                    .flatMap { response ->
+                        usuarioRepository.findById(response.id)
+                            .flatMap { usuario -> agregarMembresiaActiva(usuario, response) }
+                            .defaultIfEmpty(response)
+                    }
             }
 
     fun crearAdministrador(request: CrearAdminRequest): Mono<UsuarioResponse> =
-        obtenerRol("ADMINISTRADOR")
+        Mono.fromCallable { CorreoRolResolver.validarRol(request.correo, "ADMINISTRADOR") }
+            .then(obtenerRol("ADMINISTRADOR"))
             .flatMap { rol ->
                 usuarioRepository.existsByRolId(requireNotNull(rol.id) { "El rol ADMINISTRADOR debe tener id" })
                     .flatMap { existeAdmin ->
@@ -72,7 +82,8 @@ class UsuarioService(
             }
 
     fun crearAdministradorAdicional(request: CrearAdminRequest): Mono<UsuarioResponse> =
-        obtenerRolPermitido("ADMINISTRADOR")
+        Mono.fromCallable { CorreoRolResolver.validarRol(request.correo, "ADMINISTRADOR") }
+            .then(obtenerRolPermitido("ADMINISTRADOR"))
             .flatMap { rol ->
                 crearUsuarioConRol(
                     nombre = request.nombre,
@@ -85,7 +96,8 @@ class UsuarioService(
             }
 
     fun registrarUsuarioPublico(request: CrearAdminRequest): Mono<UsuarioResponse> =
-        obtenerRolPermitido("USUARIO")
+        Mono.fromCallable { CorreoRolResolver.validarRol(request.correo, "USUARIO") }
+            .then(obtenerRolPermitido("USUARIO"))
             .flatMap { rol ->
                 crearUsuarioConRol(
                     nombre = request.nombre,
@@ -98,7 +110,19 @@ class UsuarioService(
             }
 
     fun crearUsuario(request: CrearUsuarioRequest): Mono<UsuarioResponse> =
-        obtenerRolPermitido(request.rol)
+        Mono.fromCallable {
+            val rolPorDominio = CorreoRolResolver.resolverRol(request.correo)
+            if (rolPorDominio == "USUARIO") {
+                throw BadRequestException("El administrador no puede crear usuarios normales")
+            }
+            request.rol?.takeUnless { it.isBlank() }?.let { rolSolicitado ->
+                if (rolSolicitado.trim().uppercase() != rolPorDominio) {
+                    throw BadRequestException("El rol seleccionado no coincide con el dominio del correo")
+                }
+            }
+            rolPorDominio
+        }
+            .flatMap(::obtenerRolPermitido)
             .flatMap { rol ->
                 crearUsuarioConRol(
                     nombre = request.nombre,

@@ -7,6 +7,7 @@ import jakarta.validation.Valid
 import com.clubdeportivo.service.UsuarioService
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -46,4 +47,9 @@ class UsuarioController(
     @GetMapping
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     fun listar(): Flux<UsuarioResponse> = usuarioService.listar()
+
+    @GetMapping("/rol/{rol}")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    fun listarPorRol(@PathVariable rol: String): Flux<UsuarioResponse> =
+        usuarioService.listarPorRol(rol)
 }
