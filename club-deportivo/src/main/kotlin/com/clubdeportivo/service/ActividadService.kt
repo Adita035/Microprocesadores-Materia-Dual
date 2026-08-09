@@ -3,6 +3,7 @@ package com.clubdeportivo.service
 import com.clubdeportivo.dto.ActividadResponse
 import com.clubdeportivo.dto.ActualizarActividadRequest
 import com.clubdeportivo.dto.ActualizarEstadoActividadRequest
+import com.clubdeportivo.dto.AlumnoActividadResponse
 import com.clubdeportivo.dto.AsignarEntrenadorRequest
 import com.clubdeportivo.dto.CrearActividadRequest
 import com.clubdeportivo.dto.InscripcionActividadResponse
@@ -58,6 +59,40 @@ class ActividadService(
                 actividadEntrenadorRepository.findByEntrenadorId(entrenadorId)
                     .flatMap { relacion -> actividadRepository.findById(relacion.actividadId) }
                     .flatMap(::toResponse)
+            }
+
+    fun listarDelEntrenador(correo: String): Flux<ActividadResponse> =
+        obtenerEntrenadorPorCorreo(correo)
+            .flatMapMany { entrenador -> listarPorEntrenador(requireNotNull(entrenador.id) { "El entrenador debe tener id" }) }
+
+    fun listarAlumnosDeActividad(actividadId: Long, correoEntrenador: String): Flux<AlumnoActividadResponse> =
+        actividadRepository.findById(actividadId)
+            .switchIfEmpty(Mono.error(NotFoundException("Actividad no encontrada")))
+            .then(obtenerEntrenadorPorCorreo(correoEntrenador))
+            .flatMap { entrenador ->
+                val entrenadorId = requireNotNull(entrenador.id) { "El entrenador debe tener id" }
+                actividadEntrenadorRepository.existsByActividadIdAndEntrenadorId(actividadId, entrenadorId)
+            }
+            .flatMapMany { asignada ->
+                if (!asignada) {
+                    Flux.error(BadRequestException("La actividad no esta asignada a tu perfil de entrenador"))
+                } else {
+                    inscripcionActividadRepository.findByActividadId(actividadId)
+                        .flatMap { inscripcion ->
+                            usuarioRepository.findById(inscripcion.usuarioId)
+                                .switchIfEmpty(Mono.error(NotFoundException("Usuario inscrito no encontrado")))
+                                .flatMap { usuario ->
+                                    rolRepository.findById(usuario.rolId)
+                                        .map { rol -> usuario.toResponse(rol) }
+                                }
+                                .map { usuarioResponse ->
+                                    AlumnoActividadResponse(
+                                        usuario = usuarioResponse,
+                                        fechaInscripcion = inscripcion.fechaInscripcion,
+                                    )
+                                }
+                        }
+                }
             }
 
     fun buscarPorId(id: Long): Mono<ActividadResponse> =
@@ -156,6 +191,14 @@ class ActividadService(
         }
         return normalizado
     }
+
+    private fun obtenerEntrenadorPorCorreo(correo: String): Mono<Entrenador> =
+        usuarioRepository.findByCorreo(correo)
+            .switchIfEmpty(Mono.error(NotFoundException("Usuario no encontrado")))
+            .flatMap { usuario ->
+                entrenadorRepository.findByUsuarioId(requireNotNull(usuario.id) { "El usuario debe tener id" })
+                    .switchIfEmpty(Mono.error(NotFoundException("Perfil de entrenador no encontrado")))
+            }
 
     private fun toResponse(actividad: Actividad): Mono<ActividadResponse> =
         actividadEntrenadorRepository.findByActividadId(requireNotNull(actividad.id) { "La actividad debe tener id" })

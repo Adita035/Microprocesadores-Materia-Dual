@@ -2,6 +2,7 @@ package com.clubdeportivo.dto
 
 import jakarta.validation.constraints.NotBlank
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 
 data class CrearActividadRequest(
@@ -49,4 +50,9 @@ data class ActividadResponse(
 data class InscripcionActividadResponse(
     val mensaje: String,
     val actividad: ActividadResponse,
+)
+
+data class AlumnoActividadResponse(
+    val usuario: UsuarioResponse,
+    val fechaInscripcion: LocalDateTime?,
 )

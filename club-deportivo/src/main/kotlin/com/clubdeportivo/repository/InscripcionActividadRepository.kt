@@ -9,5 +9,6 @@ import reactor.core.publisher.Mono
 @Repository
 interface InscripcionActividadRepository : ReactiveCrudRepository<InscripcionActividad, Long> {
     fun findByUsuarioId(usuarioId: Long): Flux<InscripcionActividad>
+    fun findByActividadId(actividadId: Long): Flux<InscripcionActividad>
     fun existsByUsuarioIdAndActividadId(usuarioId: Long, actividadId: Long): Mono<Boolean>
 }

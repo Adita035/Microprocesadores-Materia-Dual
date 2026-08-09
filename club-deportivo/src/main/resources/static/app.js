@@ -331,6 +331,10 @@ document.querySelector("#publicLoginForm").addEventListener("submit", async (eve
         setSession(result.body.token, result.body.usuario);
         closeAuthModal();
         showToast("Sesion iniciada correctamente.");
+        if (result.body.usuario?.rol === "ENTRENADOR") {
+            window.location.href = "/entrenador.html";
+            return;
+        }
         if (pendingEnrollmentId) {
             const activityId = pendingEnrollmentId;
             pendingEnrollmentId = null;
@@ -363,6 +367,10 @@ document.querySelector("#publicRegisterForm").addEventListener("submit", async (
         setSession(login.body.token, login.body.usuario);
         closeAuthModal();
         showToast("Cuenta creada e iniciada correctamente.");
+        if (login.body.usuario?.rol === "ENTRENADOR") {
+            window.location.href = "/entrenador.html";
+            return;
+        }
         if (pendingEnrollmentId) {
             const activityId = pendingEnrollmentId;
             pendingEnrollmentId = null;

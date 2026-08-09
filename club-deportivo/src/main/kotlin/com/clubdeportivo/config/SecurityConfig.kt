@@ -37,7 +37,7 @@ class SecurityConfig {
                 it.accessDeniedHandler(HttpStatusServerAccessDeniedHandler(HttpStatus.FORBIDDEN))
             }
             .authorizeExchange {
-                it.pathMatchers("/", "/index.html", "/admin.html", "/membresias.html", "/styles.css", "/app.js", "/admin.js", "/membresias.js", "/favicon.ico", "/assets/**").permitAll()
+                it.pathMatchers("/", "/index.html", "/admin.html", "/entrenador.html", "/membresias.html", "/styles.css", "/app.js", "/admin.js", "/entrenador.js", "/membresias.js", "/favicon.ico", "/assets/**").permitAll()
                 it.pathMatchers(HttpMethod.GET, "/api/actividades/publicas", "/api/actividades/publicas/**").permitAll()
                 it.pathMatchers(HttpMethod.GET, "/api/membresias/publicas").permitAll()
                 it.pathMatchers(HttpMethod.POST, "/api/auth/login").permitAll()

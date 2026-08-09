@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Club Deportivo - Entrenador</title>
+    <link rel="icon" type="image/png" href="/assets/favicon.png">
+    <link rel="apple-touch-icon" href="/assets/favicon.png">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="publicPage">
+    <header class="publicTopbar">
+        <a class="brand" href="/entrenador.html" aria-label="Club Deportivo">
+            <span class="brandMark logoMark"></span>
+            <span>
+                <strong>Club Deportivo</strong>
+                <small>Panel de entrenador</small>
+            </span>
+        </a>
+
+        <nav class="publicNav">
+            <a href="#mis-actividades">Mis actividades</a>
+            <a href="#alumnos">Alumnos</a>
+            <a href="#materiales">Materiales</a>
+            <span id="trainerUserBadge" class="userBadge"></span>
+            <button id="trainerLogoutBtn" type="button" class="button ghost">Cerrar sesion</button>
+        </nav>
+    </header>
+
+    <main class="publicShell">
+        <section class="publicHero standaloneHero trainerHero">
+            <div class="publicHeroCopy">
+                <p class="eyebrow">Panel deportivo</p>
+                <h1>Actividades asignadas y alumnos inscritos.</h1>
+                <p class="heroCopy">Consulta solo las actividades que administracion te asigno y revisa la lista de alumnos registrados en cada una.</p>
+            </div>
+            <div class="heroStats publicHeroStats" aria-label="Indicadores del entrenador">
+                <article>
+                    <span>Actividades</span>
+                    <strong id="trainerActivityCount">0</strong>
+                </article>
+                <article>
+                    <span>Seleccionada</span>
+                    <strong id="selectedActivityLabel">-</strong>
+                </article>
+                <article>
+                    <span>Alumnos</span>
+                    <strong id="studentCount">0</strong>
+                </article>
+            </div>
+        </section>
+
+        <section id="mis-actividades" class="section">
+            <div class="sectionHeader">
+                <div>
+                    <p class="eyebrow">Agenda personal</p>
+                    <h2>Mis actividades asignadas</h2>
+                </div>
+                <button id="reloadTrainerActivitiesBtn" type="button" class="button compact">Actualizar</button>
+            </div>
+            <div id="trainerActivitiesGrid" class="activityGrid">
+                <article class="emptyState">Cargando actividades asignadas...</article>
+            </div>
+        </section>
+
+        <section id="alumnos" class="section responseSection">
+            <div class="sectionHeader">
+                <div>
+                    <p class="eyebrow">Inscripciones</p>
+                    <h2>Alumnos inscritos</h2>
+                </div>
+                <span id="studentsStatus" class="pill">Sin actividad</span>
+            </div>
+            <div id="studentsPanel" class="output visualOutput">
+                <article class="resultEmpty">
+                    <span class="moduleIcon">AL</span>
+                    <div>
+                        <h3>Selecciona una actividad</h3>
+                        <p>Usa el boton Ver alumnos en una actividad asignada para consultar sus inscritos.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section id="materiales" class="workspace">
+            <div class="panel">
+                <div class="panelHeader">
+                    <div>
+                        <p class="eyebrow">Recursos deportivos</p>
+                        <h2>Solicitar materiales</h2>
+                    </div>
+                    <span class="pill green">Entrenador</span>
+                </div>
+
+                <form id="materialRequestForm" class="form gridForm">
+                    <label>Material
+                        <select name="materialId" id="materialSelect" required>
+                            <option value="">Cargando materiales...</option>
+                        </select>
+                    </label>
+                    <label>Cantidad
+                        <input name="cantidad" type="number" min="1" required value="1">
+                    </label>
+                    <button type="submit" class="button primary">Enviar solicitud</button>
+                </form>
+            </div>
+
+            <div class="panel">
+                <div class="panelHeader">
+                    <div>
+                        <p class="eyebrow">Historial</p>
+                        <h2>Mis solicitudes</h2>
+                    </div>
+                    <button id="reloadMaterialRequestsBtn" type="button" class="button compact">Actualizar</button>
+                </div>
+
+                <div id="materialRequestsPanel" class="visualOutput">
+                    <article class="resultEmpty">
+                        <span class="moduleIcon">MT</span>
+                        <div>
+                            <h3>Cargando solicitudes</h3>
+                            <p>Las solicitudes de materiales apareceran aqui.</p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <pre id="trainerToast" class="publicToast hidden"></pre>
+
+    <script src="/entrenador.js"></script>
+</body>
+</html>
