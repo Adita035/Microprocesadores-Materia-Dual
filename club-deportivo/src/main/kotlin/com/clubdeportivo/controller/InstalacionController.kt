@@ -27,22 +27,22 @@ class InstalacionController(
         instalacionService.crear(request)
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ENTRENADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ENTRENADOR', 'TRABAJADOR')")
     fun listar(): Flux<InstalacionResponse> =
         instalacionService.listar()
 
     @GetMapping("/disponibles")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ENTRENADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ENTRENADOR', 'TRABAJADOR')")
     fun listarDisponibles(): Flux<InstalacionResponse> =
         instalacionService.listarDisponibles()
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ENTRENADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ENTRENADOR', 'TRABAJADOR')")
     fun buscarPorId(@PathVariable id: Long): Mono<InstalacionResponse> =
         instalacionService.buscarPorId(id)
 
     @PatchMapping("/{id}/disponibilidad")
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TRABAJADOR')")
     fun actualizarDisponibilidad(
         @PathVariable id: Long,
         @Valid @RequestBody request: ActualizarDisponibilidadInstalacionRequest,

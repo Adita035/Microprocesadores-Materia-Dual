@@ -23,6 +23,11 @@ data class CrearSolicitudMaterialRequest(
     val cantidad: Int,
 )
 
+data class ActualizarEstadoSolicitudMaterialRequest(
+    @field:NotBlank
+    val estado: String,
+)
+
 data class MaterialResponse(
     val id: Long,
     val nombre: String,
@@ -33,6 +38,8 @@ data class MaterialResponse(
 data class SolicitudMaterialResponse(
     val id: Long,
     val entrenadorId: Long,
+    val entrenador: String,
+    val entrenadorCorreo: String,
     val material: MaterialResponse,
     val cantidad: Int,
     val estado: String,

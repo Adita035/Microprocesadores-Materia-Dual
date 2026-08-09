@@ -1,5 +1,6 @@
 package com.clubdeportivo.service
 
+import com.clubdeportivo.dto.ActualizarEstadoSolicitudMaterialRequest
 import com.clubdeportivo.dto.CrearMaterialRequest
 import com.clubdeportivo.dto.CrearSolicitudMaterialRequest
 import com.clubdeportivo.dto.MaterialResponse
@@ -8,7 +9,6 @@ import com.clubdeportivo.entity.Material
 import com.clubdeportivo.entity.SolicitudMaterial
 import com.clubdeportivo.exception.BadRequestException
 import com.clubdeportivo.exception.NotFoundException
-import com.clubdeportivo.repository.ActividadEntrenadorRepository
 import com.clubdeportivo.repository.EntrenadorRepository
 import com.clubdeportivo.repository.MaterialRepository
 import com.clubdeportivo.repository.SolicitudMaterialRepository
@@ -24,6 +24,8 @@ class MaterialService(
     private val usuarioRepository: UsuarioRepository,
     private val entrenadorRepository: EntrenadorRepository,
 ) {
+    private val estadosSolicitud = setOf("PENDIENTE", "APROBADA", "RECHAZADA", "ENTREGADA")
+
     fun crear(request: CrearMaterialRequest): Mono<MaterialResponse> =
         materialRepository.save(
             Material(
@@ -48,12 +50,16 @@ class MaterialService(
                             if (request.cantidad > material.cantidadDisponible) {
                                 Mono.error(BadRequestException("La cantidad solicitada supera la disponibilidad del material"))
                             } else {
-                                solicitudMaterialRepository.save(
-                                    SolicitudMaterial(
-                                        entrenadorId = entrenadorId,
-                                        materialId = request.materialId,
-                                        cantidad = request.cantidad,
-                                        estado = "PENDIENTE",
+                                materialRepository.save(
+                                    material.copy(cantidadDisponible = material.cantidadDisponible - request.cantidad),
+                                ).then(
+                                    solicitudMaterialRepository.save(
+                                        SolicitudMaterial(
+                                            entrenadorId = entrenadorId,
+                                            materialId = request.materialId,
+                                            cantidad = request.cantidad,
+                                            estado = "PENDIENTE",
+                                        ),
                                     ),
                                 )
                             }
@@ -69,6 +75,21 @@ class MaterialService(
         obtenerEntrenadorId(correoEntrenador)
             .flatMapMany { entrenadorId -> solicitudMaterialRepository.findByEntrenadorId(entrenadorId) }
             .flatMap(::toResponse)
+
+    fun actualizarEstadoSolicitud(
+        id: Long,
+        request: ActualizarEstadoSolicitudMaterialRequest,
+    ): Mono<SolicitudMaterialResponse> {
+        val estado = normalizarEstado(request.estado)
+
+        return solicitudMaterialRepository.findById(id)
+            .switchIfEmpty(Mono.error(NotFoundException("Solicitud de material no encontrada")))
+            .flatMap { solicitud ->
+                actualizarInventarioPorCambioEstado(solicitud, estado)
+                    .then(solicitudMaterialRepository.save(solicitud.copy(estado = estado)))
+            }
+            .flatMap(::toResponse)
+    }
 
     private fun obtenerEntrenadorId(correo: String): Mono<Long> =
         usuarioRepository.findByCorreo(correo)
@@ -88,16 +109,61 @@ class MaterialService(
         )
 
     private fun toResponse(solicitud: SolicitudMaterial): Mono<SolicitudMaterialResponse> =
-        materialRepository.findById(solicitud.materialId)
-            .switchIfEmpty(Mono.error(NotFoundException("Material de la solicitud no encontrado")))
-            .map { material ->
-            SolicitudMaterialResponse(
-                id = requireNotNull(solicitud.id) { "La solicitud debe tener id" },
-                entrenadorId = solicitud.entrenadorId,
-                material = toResponse(material),
-                cantidad = solicitud.cantidad,
-                estado = solicitud.estado,
-                fechaSolicitud = solicitud.fechaSolicitud,
-            )
+        Mono.zip(
+            entrenadorRepository.findById(solicitud.entrenadorId)
+                .switchIfEmpty(Mono.error(NotFoundException("Entrenador de la solicitud no encontrado"))),
+            materialRepository.findById(solicitud.materialId)
+                .switchIfEmpty(Mono.error(NotFoundException("Material de la solicitud no encontrado"))),
+        ).flatMap { tuple ->
+            val entrenador = tuple.t1
+            val material = tuple.t2
+            usuarioRepository.findById(entrenador.usuarioId)
+                .switchIfEmpty(Mono.error(NotFoundException("Usuario del entrenador no encontrado")))
+                .map { usuario ->
+                    SolicitudMaterialResponse(
+                        id = requireNotNull(solicitud.id) { "La solicitud debe tener id" },
+                        entrenadorId = solicitud.entrenadorId,
+                        entrenador = "${usuario.nombre} ${usuario.apellido}".trim(),
+                        entrenadorCorreo = usuario.correo,
+                        material = toResponse(material),
+                        cantidad = solicitud.cantidad,
+                        estado = solicitud.estado,
+                        fechaSolicitud = solicitud.fechaSolicitud,
+                    )
+                }
         }
+
+    private fun actualizarInventarioPorCambioEstado(solicitud: SolicitudMaterial, nuevoEstado: String): Mono<Void> {
+        val estadoActual = solicitud.estado.uppercase()
+        val liberaMaterial = nuevoEstado == "RECHAZADA" && estadoActual != "RECHAZADA"
+        val vuelveAReservar = nuevoEstado != "RECHAZADA" && estadoActual == "RECHAZADA"
+
+        if (!liberaMaterial && !vuelveAReservar) {
+            return Mono.empty()
+        }
+
+        return materialRepository.findById(solicitud.materialId)
+            .switchIfEmpty(Mono.error(NotFoundException("Material de la solicitud no encontrado")))
+            .flatMap { material ->
+                val nuevaCantidad = if (liberaMaterial) {
+                    material.cantidadDisponible + solicitud.cantidad
+                } else {
+                    if (solicitud.cantidad > material.cantidadDisponible) {
+                        return@flatMap Mono.error<Material>(BadRequestException("No hay suficiente material disponible para reactivar la solicitud"))
+                    }
+                    material.cantidadDisponible - solicitud.cantidad
+                }
+
+                materialRepository.save(material.copy(cantidadDisponible = nuevaCantidad))
+            }
+            .then()
+    }
+
+    private fun normalizarEstado(estado: String): String {
+        val normalizado = estado.trim().uppercase()
+        if (normalizado !in estadosSolicitud) {
+            throw BadRequestException("Estado de solicitud no permitido: $estado")
+        }
+        return normalizado
+    }
 }
