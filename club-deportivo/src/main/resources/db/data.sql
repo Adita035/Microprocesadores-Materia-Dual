@@ -194,3 +194,21 @@ WHERE a.nombre = 'Yoga restaurativo'
       SELECT 1 FROM actividad_entrenador ae
       WHERE ae.actividad_id = a.id AND ae.entrenador_id = e.id
   );
+
+INSERT INTO incidencias (usuario_id, titulo, descripcion, estado)
+SELECT u.id, 'Acceso a membresia', 'El usuario no visualiza su membresia activa en la vista principal.', 'PENDIENTE'
+FROM usuarios u
+WHERE u.correo = 'ana.garcia@userclub.com'
+  AND NOT EXISTS (SELECT 1 FROM incidencias i WHERE i.titulo = 'Acceso a membresia' AND i.usuario_id = u.id);
+
+INSERT INTO incidencias (usuario_id, titulo, descripcion, estado)
+SELECT u.id, 'Error al consultar actividades', 'La agenda tarda en cargar despues de iniciar sesion.', 'EN_PROCESO'
+FROM usuarios u
+WHERE u.correo = 'luis.hernandez@userclub.com'
+  AND NOT EXISTS (SELECT 1 FROM incidencias i WHERE i.titulo = 'Error al consultar actividades' AND i.usuario_id = u.id);
+
+INSERT INTO incidencias (usuario_id, titulo, descripcion, estado)
+SELECT u.id, 'Actualizacion de telefono', 'El usuario solicita validar el cambio de numero en su perfil.', 'RESUELTA'
+FROM usuarios u
+WHERE u.correo = 'sofia.martinez@userclub.com'
+  AND NOT EXISTS (SELECT 1 FROM incidencias i WHERE i.titulo = 'Actualizacion de telefono' AND i.usuario_id = u.id);
