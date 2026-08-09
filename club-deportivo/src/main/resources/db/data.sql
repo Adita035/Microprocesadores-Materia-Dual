@@ -42,6 +42,26 @@ INSERT INTO instalaciones (nombre, descripcion, capacidad, disponible)
 SELECT 'Zona funcional', 'Area equipada para fuerza funcional, circuitos y acondicionamiento.', 35, TRUE
 WHERE NOT EXISTS (SELECT 1 FROM instalaciones i WHERE i.nombre = 'Zona funcional');
 
+INSERT INTO materiales (nombre, descripcion, cantidad_disponible)
+SELECT 'Tapetes premium', 'Tapetes antiderrapantes para yoga, movilidad y recuperacion.', 24
+WHERE NOT EXISTS (SELECT 1 FROM materiales m WHERE m.nombre = 'Tapetes premium');
+
+INSERT INTO materiales (nombre, descripcion, cantidad_disponible)
+SELECT 'Mancuernas ajustables', 'Equipo de fuerza para sesiones funcionales y acondicionamiento.', 18
+WHERE NOT EXISTS (SELECT 1 FROM materiales m WHERE m.nombre = 'Mancuernas ajustables');
+
+INSERT INTO materiales (nombre, descripcion, cantidad_disponible)
+SELECT 'Bandas de resistencia', 'Bandas elasticas para calentamiento, movilidad y fuerza accesoria.', 40
+WHERE NOT EXISTS (SELECT 1 FROM materiales m WHERE m.nombre = 'Bandas de resistencia');
+
+INSERT INTO materiales (nombre, descripcion, cantidad_disponible)
+SELECT 'Tablas de natacion', 'Tablas para tecnica de patada y entrenamiento en alberca.', 20
+WHERE NOT EXISTS (SELECT 1 FROM materiales m WHERE m.nombre = 'Tablas de natacion');
+
+INSERT INTO materiales (nombre, descripcion, cantidad_disponible)
+SELECT 'Cronometros deportivos', 'Cronometros para control de tiempos en entrenamientos dirigidos.', 12
+WHERE NOT EXISTS (SELECT 1 FROM materiales m WHERE m.nombre = 'Cronometros deportivos');
+
 INSERT INTO usuarios (nombre, apellido, correo, password, telefono, activo, rol_id)
 SELECT datos.nombre, datos.apellido, datos.correo, '$2a$10$gSFgzmuTfV8/qeasQBBlBOnAy6mDmLdv.T1Fz51.leK0ichTwpujW', datos.telefono, TRUE, r.id
 FROM roles r
