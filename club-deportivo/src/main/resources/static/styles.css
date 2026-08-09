@@ -275,6 +275,40 @@ p {
     padding-bottom: 118px;
 }
 
+.trainerHero {
+    min-height: 560px;
+    align-items: end;
+    background:
+        linear-gradient(90deg, rgba(3, 7, 10, 0.94) 0%, rgba(3, 7, 10, 0.78) 42%, rgba(3, 7, 10, 0.34) 100%),
+        url("/assets/club-luxury-hero.png") center / cover no-repeat;
+}
+
+.trainerHero .publicHeroCopy {
+    max-width: 720px;
+    padding-bottom: 128px;
+}
+
+.trainerHero h1 {
+    max-width: 700px;
+    font-size: clamp(42px, 4.5vw, 70px);
+    line-height: 1;
+}
+
+.trainerHero .heroCopy {
+    max-width: 680px;
+}
+
+.trainerHero .publicHeroStats {
+    width: min(520px, calc(100% - 116px));
+    grid-template-columns: 0.8fr 1.35fr 0.8fr;
+}
+
+.trainerHero .heroStats strong {
+    font-size: clamp(23px, 2vw, 30px);
+    line-height: 1.22;
+    overflow-wrap: anywhere;
+}
+
 .heroContent {
     max-width: 720px;
 }
