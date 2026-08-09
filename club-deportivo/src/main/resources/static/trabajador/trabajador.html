@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Club Deportivo - Trabajador</title>
+    <link rel="icon" type="image/png" href="/assets/favicon.png">
+    <link rel="apple-touch-icon" href="/assets/favicon.png">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="publicPage">
+    <header class="publicTopbar">
+        <a class="brand" href="/trabajador/trabajador.html" aria-label="Club Deportivo">
+            <span class="brandMark logoMark"></span>
+            <span>
+                <strong>Club Deportivo</strong>
+                <small>Panel operativo</small>
+            </span>
+        </a>
+
+        <nav class="publicNav">
+            <a href="#solicitudes-materiales">Solicitudes</a>
+            <a href="#inventario">Materiales</a>
+            <a href="#instalaciones-trabajador">Instalaciones</a>
+            <span id="workerUserBadge" class="userBadge"></span>
+            <button id="workerLogoutBtn" type="button" class="button ghost">Cerrar sesion</button>
+        </nav>
+    </header>
+
+    <main class="publicShell">
+        <section class="publicHero standaloneHero trainerHero">
+            <div class="publicHeroCopy">
+                <p class="eyebrow">Operacion del club</p>
+                <h1>Solicitudes, materiales e instalaciones bajo control.</h1>
+                <p class="heroCopy">Revisa solicitudes de entrenadores, controla estados de entrega y mantiene visible la disponibilidad operativa del club.</p>
+            </div>
+            <div class="heroStats publicHeroStats" aria-label="Indicadores operativos">
+                <article>
+                    <span>Solicitudes</span>
+                    <strong id="requestCount">0</strong>
+                </article>
+                <article>
+                    <span>Materiales</span>
+                    <strong id="materialCount">0</strong>
+                </article>
+                <article>
+                    <span>Instalaciones</span>
+                    <strong id="facilityCount">0</strong>
+                </article>
+            </div>
+        </section>
+
+        <section id="solicitudes-materiales" class="section responseSection">
+            <div class="sectionHeader">
+                <div>
+                    <p class="eyebrow">Entrenadores</p>
+                    <h2>Solicitudes de materiales</h2>
+                </div>
+                <button id="reloadRequestsBtn" type="button" class="button compact">Actualizar</button>
+            </div>
+            <div id="workerRequestsPanel" class="output visualOutput">
+                <article class="resultEmpty">
+                    <span class="moduleIcon">SL</span>
+                    <div>
+                        <h3>Cargando solicitudes</h3>
+                        <p>Las solicitudes pendientes, aprobadas y entregadas apareceran aqui.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section id="inventario" class="section">
+            <div class="sectionHeader">
+                <div>
+                    <p class="eyebrow">Inventario</p>
+                    <h2>Materiales disponibles</h2>
+                </div>
+                <button id="reloadMaterialsBtn" type="button" class="button compact">Actualizar</button>
+            </div>
+            <div id="workerMaterialsGrid" class="resultGrid">
+                <article class="emptyState">Cargando materiales...</article>
+            </div>
+        </section>
+
+        <section id="instalaciones-trabajador" class="section">
+            <div class="sectionHeader">
+                <div>
+                    <p class="eyebrow">Espacios del club</p>
+                    <h2>Instalaciones</h2>
+                </div>
+                <button id="reloadFacilitiesBtn" type="button" class="button compact">Actualizar</button>
+            </div>
+            <div id="workerFacilitiesGrid" class="resultGrid">
+                <article class="emptyState">Cargando instalaciones...</article>
+            </div>
+        </section>
+    </main>
+
+    <pre id="workerToast" class="publicToast hidden"></pre>
+
+    <script src="/trabajador/trabajador.js"></script>
+</body>
+</html>

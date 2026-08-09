@@ -250,7 +250,7 @@ function closeAuthModal() {
 function openAdminPromptModal() {
     const user = getUser();
     if (getToken() && user?.rol === "ADMINISTRADOR") {
-        window.location.href = "/admin.html";
+        window.location.href = "/admin/admin.html";
         return;
     }
 
@@ -332,7 +332,15 @@ document.querySelector("#publicLoginForm").addEventListener("submit", async (eve
         closeAuthModal();
         showToast("Sesion iniciada correctamente.");
         if (result.body.usuario?.rol === "ENTRENADOR") {
-            window.location.href = "/entrenador.html";
+            window.location.href = "/entrenador/entrenador.html";
+            return;
+        }
+        if (result.body.usuario?.rol === "TRABAJADOR") {
+            window.location.href = "/trabajador/trabajador.html";
+            return;
+        }
+        if (result.body.usuario?.rol === "SOPORTE_TECNICO") {
+            window.location.href = "/soporte/soporte.html";
             return;
         }
         if (pendingEnrollmentId) {
@@ -368,7 +376,15 @@ document.querySelector("#publicRegisterForm").addEventListener("submit", async (
         closeAuthModal();
         showToast("Cuenta creada e iniciada correctamente.");
         if (login.body.usuario?.rol === "ENTRENADOR") {
-            window.location.href = "/entrenador.html";
+            window.location.href = "/entrenador/entrenador.html";
+            return;
+        }
+        if (login.body.usuario?.rol === "TRABAJADOR") {
+            window.location.href = "/trabajador/trabajador.html";
+            return;
+        }
+        if (login.body.usuario?.rol === "SOPORTE_TECNICO") {
+            window.location.href = "/soporte/soporte.html";
             return;
         }
         if (pendingEnrollmentId) {
@@ -401,7 +417,7 @@ adminLoginForm.addEventListener("submit", async (event) => {
     }
 
     setSession(result.body.token, result.body.usuario);
-    window.location.href = "/admin.html";
+    window.location.href = "/admin/admin.html";
 });
 
 renderSession();

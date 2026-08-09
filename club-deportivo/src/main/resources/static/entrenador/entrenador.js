@@ -260,6 +260,7 @@ async function submitMaterialRequest(event) {
     if (result.ok) {
         showToast("Solicitud de material enviada correctamente.");
         event.currentTarget.reset();
+        await loadMaterials();
         renderMaterialOptions();
         await loadMaterialRequests();
         return;
