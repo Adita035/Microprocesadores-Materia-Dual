@@ -6,6 +6,7 @@ const supportToast = document.querySelector("#supportToast");
 const incidentCount = document.querySelector("#incidentCount");
 const pendingIncidentCount = document.querySelector("#pendingIncidentCount");
 const resolvedIncidentCount = document.querySelector("#resolvedIncidentCount");
+const supportScheduleGrid = document.querySelector("#supportScheduleGrid");
 
 function getToken() {
     return localStorage.getItem(tokenKey) || "";
@@ -54,8 +55,17 @@ async function request(path, options = {}) {
     return { ok: response.ok, status: response.status, body };
 }
 
-function showToast(message) {
-    supportToast.textContent = message;
+function messageText(data, fallback = "Operacion procesada.") {
+    if (!data) return fallback;
+    if (typeof data === "string") return data;
+    if (data.mensaje) return data.mensaje;
+    if (data.message) return data.message;
+    if (data.error) return data.error;
+    return fallback;
+}
+
+function showToast(message, fallback = "Operacion procesada.") {
+    supportToast.textContent = messageText(message, fallback);
     supportToast.classList.remove("hidden");
     window.setTimeout(() => supportToast.classList.add("hidden"), 4500);
 }
@@ -128,6 +138,29 @@ function renderHistory(history) {
     `;
 }
 
+function renderSchedule(schedules) {
+    if (!schedules.length) {
+        supportScheduleGrid.innerHTML = '<article class="emptyState">No tienes horarios registrados.</article>';
+        return;
+    }
+
+    supportScheduleGrid.innerHTML = schedules.map((schedule) => `
+        <article class="resultCard">
+            <div class="resultCardHeader">
+                <div>
+                    <p class="eyebrow">${schedule.usuario.rol}</p>
+                    <h3>${schedule.diaSemana || "Dia por definir"}</h3>
+                </div>
+                <span class="pill green">Activo</span>
+            </div>
+            <div class="resultMeta">
+                <span>Entrada: ${schedule.horaEntrada || "--:--"}</span>
+                <span>Salida: ${schedule.horaSalida || "--:--"}</span>
+            </div>
+        </article>
+    `).join("");
+}
+
 async function loadIncidents() {
     const result = await request("/api/incidencias");
     if (result.ok) {
@@ -135,6 +168,15 @@ async function loadIncidents() {
         return;
     }
     supportIncidentsPanel.innerHTML = `<article class="emptyState">${result.body?.mensaje || "No se pudieron cargar las incidencias."}</article>`;
+}
+
+async function loadSchedule() {
+    const result = await request("/api/horarios/mis-horarios");
+    if (result.ok) {
+        renderSchedule(result.body || []);
+        return;
+    }
+    supportScheduleGrid.innerHTML = `<article class="emptyState">${result.body?.mensaje || "No se pudo cargar tu horario."}</article>`;
 }
 
 async function updateIncidentStatus(event) {
@@ -172,6 +214,7 @@ async function addIncidentComment(event) {
 }
 
 document.querySelector("#reloadIncidentsBtn").addEventListener("click", loadIncidents);
+document.querySelector("#reloadSupportScheduleBtn").addEventListener("click", loadSchedule);
 document.querySelector("#incidentStatusForm").addEventListener("submit", updateIncidentStatus);
 document.querySelector("#incidentCommentForm").addEventListener("submit", addIncidentComment);
 document.querySelector("#supportLogoutBtn").addEventListener("click", () => {
@@ -182,4 +225,5 @@ document.querySelector("#supportLogoutBtn").addEventListener("click", () => {
 
 if (requireSupportSession()) {
     loadIncidents();
+    loadSchedule();
 }

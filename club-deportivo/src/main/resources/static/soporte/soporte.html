@@ -21,6 +21,7 @@
         <nav class="publicNav">
             <a href="#incidencias-soporte">Incidencias</a>
             <a href="#seguimiento-soporte">Seguimiento</a>
+            <a href="#horario-soporte">Mi horario</a>
             <span id="supportUserBadge" class="userBadge"></span>
             <button id="supportLogoutBtn" type="button" class="button ghost">Cerrar sesion</button>
         </nav>
@@ -106,6 +107,19 @@
                     <label>Comentario<input name="comentario" required placeholder="Describe el avance o solucion aplicada"></label>
                     <button type="submit" class="button success">Guardar comentario</button>
                 </form>
+            </div>
+        </section>
+
+        <section id="horario-soporte" class="section">
+            <div class="sectionHeader">
+                <div>
+                    <p class="eyebrow">Agenda laboral</p>
+                    <h2>Mi horario</h2>
+                </div>
+                <button id="reloadSupportScheduleBtn" type="button" class="button compact">Actualizar</button>
+            </div>
+            <div id="supportScheduleGrid" class="resultGrid">
+                <article class="emptyState">Cargando horario...</article>
             </div>
         </section>
     </main>
