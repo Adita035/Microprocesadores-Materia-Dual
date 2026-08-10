@@ -18,17 +18,41 @@ INSERT INTO roles (nombre)
 VALUES ('SOPORTE_TECNICO')
 ON DUPLICATE KEY UPDATE nombre = VALUES(nombre);
 
-INSERT INTO membresias (nombre, descripcion, precio, duracion_dias, activa)
-SELECT 'Acceso Activo', 'Entrenamiento regular, consulta de actividades y acceso a beneficios iniciales del club.', 399.00, 30, TRUE
-WHERE NOT EXISTS (SELECT 1 FROM membresias m WHERE m.nombre = 'Acceso Activo');
+UPDATE membresias
+SET nombre = 'Plan Joven',
+    descripcion = 'Membresia para socios de 18 a 26 anos con acceso a actividades y beneficios del club.',
+    precio = 1181.00,
+    duracion_dias = 30,
+    activa = TRUE
+WHERE nombre = 'Acceso Activo';
+
+UPDATE membresias
+SET nombre = 'Plan Individual',
+    descripcion = 'Membresia para socios mayores de 27 anos con acceso individual a actividades del club.',
+    precio = 1575.00,
+    duracion_dias = 30,
+    activa = TRUE
+WHERE nombre = 'Club Total';
+
+UPDATE membresias
+SET nombre = 'Plan Anual',
+    descripcion = 'Membresia anual con beneficios extendidos y acceso constante a servicios del club.',
+    precio = 2363.00,
+    duracion_dias = 365,
+    activa = TRUE
+WHERE nombre = 'Alto Rendimiento';
 
 INSERT INTO membresias (nombre, descripcion, precio, duracion_dias, activa)
-SELECT 'Club Total', 'Prioridad en inscripciones, actividades seleccionadas y mejores beneficios para socios constantes.', 699.00, 30, TRUE
-WHERE NOT EXISTS (SELECT 1 FROM membresias m WHERE m.nombre = 'Club Total');
+SELECT 'Plan Joven', 'Membresia para socios de 18 a 26 anos con acceso a actividades y beneficios del club.', 1181.00, 30, TRUE
+WHERE NOT EXISTS (SELECT 1 FROM membresias m WHERE m.nombre = 'Plan Joven');
 
 INSERT INTO membresias (nombre, descripcion, precio, duracion_dias, activa)
-SELECT 'Alto Rendimiento', 'Agenda completa, beneficios extendidos y perfil ideal para usuarios de entrenamiento intensivo.', 999.00, 30, TRUE
-WHERE NOT EXISTS (SELECT 1 FROM membresias m WHERE m.nombre = 'Alto Rendimiento');
+SELECT 'Plan Individual', 'Membresia para socios mayores de 27 anos con acceso individual a actividades del club.', 1575.00, 30, TRUE
+WHERE NOT EXISTS (SELECT 1 FROM membresias m WHERE m.nombre = 'Plan Individual');
+
+INSERT INTO membresias (nombre, descripcion, precio, duracion_dias, activa)
+SELECT 'Plan Anual', 'Membresia anual con beneficios extendidos y acceso constante a servicios del club.', 2363.00, 365, TRUE
+WHERE NOT EXISTS (SELECT 1 FROM membresias m WHERE m.nombre = 'Plan Anual');
 
 INSERT INTO instalaciones (nombre, descripcion, capacidad, disponible)
 SELECT 'Alberca semiolimpica', 'Carriles para entrenamiento tecnico, resistencia y sesiones de natacion.', 30, TRUE
@@ -132,6 +156,38 @@ JOIN (
 WHERE r.nombre = 'SOPORTE_TECNICO'
   AND NOT EXISTS (SELECT 1 FROM usuarios u WHERE u.correo = datos.correo);
 
+INSERT INTO horarios (usuario_id, dia_semana, hora_entrada, hora_salida)
+SELECT u.id, datos.dia_semana, datos.hora_entrada, datos.hora_salida
+FROM usuarios u
+JOIN (
+    SELECT 'roberto.mendoza@workerclub.com' correo, 'LUNES A VIERNES' dia_semana, '08:00:00' hora_entrada, '16:00:00' hora_salida
+    UNION ALL SELECT 'paola.castillo@workerclub.com', 'LUNES A VIERNES', '09:00:00', '17:00:00'
+    UNION ALL SELECT 'fernando.reyes@workerclub.com', 'LUNES A VIERNES', '10:00:00', '18:00:00'
+    UNION ALL SELECT 'daniela.ortega@workerclub.com', 'MARTES A SABADO', '08:00:00', '16:00:00'
+    UNION ALL SELECT 'jorge.navarro@workerclub.com', 'MARTES A SABADO', '11:00:00', '19:00:00'
+    UNION ALL SELECT 'camila.vargas@workerclub.com', 'LUNES A VIERNES', '07:00:00', '15:00:00'
+    UNION ALL SELECT 'mariana.rios@coachclub.com', 'LUN-MIE-VIE', '07:00:00', '12:00:00'
+    UNION ALL SELECT 'carlos.vega@coachclub.com', 'LUN-MIE-VIE', '16:00:00', '21:00:00'
+    UNION ALL SELECT 'lucia.montes@coachclub.com', 'MAR-JUE-SAB', '15:00:00', '20:00:00'
+    UNION ALL SELECT 'andres.pineda@coachclub.com', 'MARTES A SABADO', '08:00:00', '13:00:00'
+    UNION ALL SELECT 'natalia.cruz@coachclub.com', 'LUNES A VIERNES', '14:00:00', '19:00:00'
+    UNION ALL SELECT 'emilio.flores@coachclub.com', 'MAR-JUE-SAB', '09:00:00', '14:00:00'
+    UNION ALL SELECT 'sergio.acosta@soporterclub.com', 'LUNES A VIERNES', '08:00:00', '16:00:00'
+    UNION ALL SELECT 'elena.bravo@soporterclub.com', 'LUNES A VIERNES', '10:00:00', '18:00:00'
+    UNION ALL SELECT 'oscar.molina@soporterclub.com', 'MARTES A SABADO', '09:00:00', '17:00:00'
+    UNION ALL SELECT 'adriana.nunez@soporterclub.com', 'LUNES A VIERNES', '12:00:00', '20:00:00'
+    UNION ALL SELECT 'raul.ibarra@soporterclub.com', 'MARTES A SABADO', '08:00:00', '16:00:00'
+    UNION ALL SELECT 'claudia.pacheco@soporterclub.com', 'LUNES A VIERNES', '07:00:00', '15:00:00'
+) datos ON datos.correo = u.correo
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM horarios h
+    WHERE h.usuario_id = u.id
+      AND h.dia_semana = datos.dia_semana
+      AND h.hora_entrada = datos.hora_entrada
+      AND h.hora_salida = datos.hora_salida
+);
+
 INSERT INTO entrenadores (usuario_id, especialidad)
 SELECT u.id,
     CASE
@@ -151,49 +207,61 @@ WHERE u.correo IN (
   AND NOT EXISTS (SELECT 1 FROM entrenadores e WHERE e.usuario_id = u.id);
 
 INSERT INTO actividades (nombre, descripcion, fecha, hora_inicio, hora_fin, estado)
-SELECT 'Natacion premium', 'Entrenamiento tecnico en alberca semiolimpica con enfoque en resistencia, respiracion y tecnica.', '2026-08-03', '07:00:00', '08:30:00', 'PENDIENTE'
-WHERE NOT EXISTS (SELECT 1 FROM actividades a WHERE a.nombre = 'Natacion premium');
-
-INSERT INTO actividades (nombre, descripcion, fecha, hora_inicio, hora_fin, estado)
-SELECT 'Fuerza funcional', 'Circuito de fuerza, movilidad y acondicionamiento para mejorar rendimiento general.', '2026-08-04', '18:00:00', '19:15:00', 'PENDIENTE'
-WHERE NOT EXISTS (SELECT 1 FROM actividades a WHERE a.nombre = 'Fuerza funcional');
-
-INSERT INTO actividades (nombre, descripcion, fecha, hora_inicio, hora_fin, estado)
-SELECT 'Yoga restaurativo', 'Sesion de movilidad, respiracion y recuperacion activa en sala wellness.', '2026-08-05', '19:30:00', '20:30:00', 'PENDIENTE'
-WHERE NOT EXISTS (SELECT 1 FROM actividades a WHERE a.nombre = 'Yoga restaurativo');
-
-INSERT INTO actividad_entrenador (actividad_id, entrenador_id)
-SELECT a.id, e.id
-FROM actividades a
-JOIN usuarios u ON u.correo = 'mariana.rios@coachclub.com'
-JOIN entrenadores e ON e.usuario_id = u.id
-WHERE a.nombre = 'Natacion premium'
-  AND NOT EXISTS (
-      SELECT 1 FROM actividad_entrenador ae
-      WHERE ae.actividad_id = a.id AND ae.entrenador_id = e.id
-  );
-
-INSERT INTO actividad_entrenador (actividad_id, entrenador_id)
-SELECT a.id, e.id
-FROM actividades a
-JOIN usuarios u ON u.correo = 'carlos.vega@coachclub.com'
-JOIN entrenadores e ON e.usuario_id = u.id
-WHERE a.nombre = 'Fuerza funcional'
-  AND NOT EXISTS (
-      SELECT 1 FROM actividad_entrenador ae
-      WHERE ae.actividad_id = a.id AND ae.entrenador_id = e.id
-  );
+SELECT datos.nombre, datos.descripcion, datos.fecha, datos.hora_inicio, datos.hora_fin, 'PENDIENTE'
+FROM (
+    SELECT 'Aerobics' nombre, 'Clase cardiovascular grupal con rutinas dinamicas para mejorar resistencia, coordinacion y energia general.' descripcion, '2026-08-10' fecha, '07:00:00' hora_inicio, '08:00:00' hora_fin
+    UNION ALL SELECT 'Box', 'Entrenamiento de boxeo recreativo con tecnica, acondicionamiento y trabajo de golpes controlados.', '2026-08-10', '18:00:00', '19:00:00'
+    UNION ALL SELECT 'Calistenia', 'Sesion de fuerza con peso corporal enfocada en control, movilidad y progresion tecnica.', '2026-08-11', '07:30:00', '08:30:00'
+    UNION ALL SELECT 'Futbol', 'Entrenamiento tecnico y tactico para mejorar condicion, control de balon y juego en equipo.', '2026-08-11', '17:00:00', '18:30:00'
+    UNION ALL SELECT 'Basquetbol', 'Practica deportiva con fundamentos de tiro, pase, defensa y dinamicas de equipo.', '2026-08-12', '17:00:00', '18:30:00'
+    UNION ALL SELECT 'Natacion', 'Entrenamiento en alberca para tecnica, respiracion, resistencia y seguridad acuatico-deportiva.', '2026-08-12', '07:00:00', '08:30:00'
+    UNION ALL SELECT 'Karate', 'Clase marcial enfocada en disciplina, defensa, tecnica de golpeo y control corporal.', '2026-08-13', '18:00:00', '19:00:00'
+    UNION ALL SELECT 'Kung Fu', 'Entrenamiento marcial tradicional con formas, movilidad, coordinacion y tecnica defensiva.', '2026-08-13', '19:15:00', '20:15:00'
+    UNION ALL SELECT 'Defensa personal', 'Sesion practica para aprender reaccion, prevencion y tecnicas basicas de proteccion.', '2026-08-14', '18:00:00', '19:00:00'
+    UNION ALL SELECT 'Zumba', 'Clase fitness musical con rutinas de baile, cardio y coordinacion para todos los niveles.', '2026-08-14', '19:15:00', '20:15:00'
+    UNION ALL SELECT 'Krav Maga', 'Entrenamiento funcional de defensa personal con escenarios reales y respuesta rapida.', '2026-08-15', '08:00:00', '09:00:00'
+    UNION ALL SELECT 'Tenis', 'Practica de tecnica, movilidad, saque, golpeo y control de juego en cancha.', '2026-08-15', '09:30:00', '11:00:00'
+    UNION ALL SELECT 'Gimnasia', 'Clase de flexibilidad, fuerza, coordinacion y fundamentos gimnasticos progresivos.', '2026-08-16', '08:00:00', '09:00:00'
+    UNION ALL SELECT 'Spinning', 'Sesion indoor de ciclismo con resistencia, intervalos y trabajo cardiovascular intenso.', '2026-08-16', '18:00:00', '19:00:00'
+    UNION ALL SELECT 'Tae Kwon Do', 'Entrenamiento marcial con pateo, disciplina, elasticidad y tecnica deportiva.', '2026-08-17', '18:00:00', '19:00:00'
+    UNION ALL SELECT 'Jazz', 'Clase de danza jazz con tecnica, ritmo, expresion corporal y secuencias coreograficas.', '2026-08-17', '19:15:00', '20:15:00'
+    UNION ALL SELECT 'Muay Thai', 'Entrenamiento de striking con tecnica de golpeo, defensa, clinch y acondicionamiento.', '2026-08-18', '18:00:00', '19:00:00'
+    UNION ALL SELECT 'Frontenis', 'Practica en cancha con tecnica de golpeo, desplazamiento y estrategia de juego.', '2026-08-18', '19:15:00', '20:15:00'
+    UNION ALL SELECT 'Squash', 'Entrenamiento de velocidad, reflejos, tecnica de raqueta y resistencia en cancha cerrada.', '2026-08-19', '18:00:00', '19:00:00'
+) datos
+WHERE NOT EXISTS (SELECT 1 FROM actividades a WHERE a.nombre = datos.nombre);
 
 INSERT INTO actividad_entrenador (actividad_id, entrenador_id)
 SELECT a.id, e.id
 FROM actividades a
-JOIN usuarios u ON u.correo = 'lucia.montes@coachclub.com'
+JOIN (
+    SELECT 'Aerobics' actividad, 'lucia.montes@coachclub.com' correo
+    UNION ALL SELECT 'Box', 'carlos.vega@coachclub.com'
+    UNION ALL SELECT 'Calistenia', 'natalia.cruz@coachclub.com'
+    UNION ALL SELECT 'Futbol', 'andres.pineda@coachclub.com'
+    UNION ALL SELECT 'Basquetbol', 'emilio.flores@coachclub.com'
+    UNION ALL SELECT 'Natacion', 'mariana.rios@coachclub.com'
+    UNION ALL SELECT 'Karate', 'lucia.montes@coachclub.com'
+    UNION ALL SELECT 'Kung Fu', 'emilio.flores@coachclub.com'
+    UNION ALL SELECT 'Defensa personal', 'carlos.vega@coachclub.com'
+    UNION ALL SELECT 'Zumba', 'natalia.cruz@coachclub.com'
+    UNION ALL SELECT 'Krav Maga', 'carlos.vega@coachclub.com'
+    UNION ALL SELECT 'Tenis', 'andres.pineda@coachclub.com'
+    UNION ALL SELECT 'Gimnasia', 'lucia.montes@coachclub.com'
+    UNION ALL SELECT 'Spinning', 'natalia.cruz@coachclub.com'
+    UNION ALL SELECT 'Tae Kwon Do', 'emilio.flores@coachclub.com'
+    UNION ALL SELECT 'Jazz', 'lucia.montes@coachclub.com'
+    UNION ALL SELECT 'Muay Thai', 'carlos.vega@coachclub.com'
+    UNION ALL SELECT 'Frontenis', 'andres.pineda@coachclub.com'
+    UNION ALL SELECT 'Squash', 'andres.pineda@coachclub.com'
+) asignacion ON asignacion.actividad = a.nombre
+JOIN usuarios u ON u.correo = asignacion.correo
 JOIN entrenadores e ON e.usuario_id = u.id
-WHERE a.nombre = 'Yoga restaurativo'
-  AND NOT EXISTS (
-      SELECT 1 FROM actividad_entrenador ae
-      WHERE ae.actividad_id = a.id AND ae.entrenador_id = e.id
-  );
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM actividad_entrenador ae
+    WHERE ae.actividad_id = a.id AND ae.entrenador_id = e.id
+);
 
 INSERT INTO incidencias (usuario_id, titulo, descripcion, estado)
 SELECT u.id, 'Acceso a membresia', 'El usuario no visualiza su membresia activa en la vista principal.', 'PENDIENTE'
