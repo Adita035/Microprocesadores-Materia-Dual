@@ -85,7 +85,6 @@
                     <p class="eyebrow">Operacion del club</p>
                     <h2>Modulos principales</h2>
                 </div>
-                <button id="healthBtn" type="button" class="button compact">Estado API</button>
             </div>
 
             <div class="moduleGrid">
@@ -156,7 +155,11 @@
                 </div>
 
                 <form id="facilityStatusForm" class="form">
-                    <label>ID instalacion<input name="instalacionId" type="number" min="1" required value="1"></label>
+                    <label>Instalacion
+                        <select id="facilityNameSelect" name="nombre" required>
+                            <option value="">Selecciona una instalacion</option>
+                        </select>
+                    </label>
                     <label>Disponibilidad
                         <select name="disponible">
                             <option value="true">Disponible</option>
@@ -208,7 +211,11 @@
                 </div>
 
                 <form id="membershipStatusForm" class="form">
-                    <label>ID membresia<input name="membresiaId" type="number" min="1" required value="1"></label>
+                    <label>Membresia
+                        <select id="membershipNameSelect" name="nombre" required>
+                            <option value="">Selecciona una membresia</option>
+                        </select>
+                    </label>
                     <label>Estado
                         <select name="activa">
                             <option value="true">Activar</option>
@@ -263,56 +270,29 @@
                 </div>
 
                 <form id="assignTrainerForm" class="form">
-                    <label>ID actividad<input name="actividadId" type="number" min="1" required value="1"></label>
-                    <label>ID entrenador<input name="entrenadorId" type="number" min="1" required value="1"></label>
+                    <label>Actividad
+                        <select id="assignActivitySelect" name="actividad" required>
+                            <option value="">Selecciona una actividad</option>
+                        </select>
+                    </label>
+                    <label>Entrenador
+                        <select id="assignTrainerSelect" name="entrenador" required>
+                            <option value="">Selecciona un entrenador</option>
+                        </select>
+                    </label>
                     <button type="submit" class="button success">Asignar entrenador</button>
                 </form>
             </div>
         </section>
 
-        <section class="workspace">
-            <div id="usuarios" class="panel authPanel">
-                <div class="panelHeader">
-                    <div>
-                        <p class="eyebrow">Acceso</p>
-                        <h2>Sesion administrativa</h2>
-                    </div>
-                    <span class="pill">JWT</span>
-                </div>
-
-                <div class="splitForms">
-                    <form id="adminForm" class="form">
-                        <h3>Primer administrador</h3>
-                        <label>Nombre<input name="nombre" autocomplete="given-name" required value="Alejandro"></label>
-                        <label>Apellido<input name="apellido" autocomplete="family-name" required value="Morales"></label>
-                        <label>Correo<input name="correo" type="email" autocomplete="email" required value="alejandro.morales@adminclub.com"></label>
-                        <label>Telefono<input name="telefono" autocomplete="tel" value="5551234567"></label>
-                        <label>Password<input name="password" type="password" autocomplete="new-password" required minlength="6" value="123456"></label>
-                        <button type="submit" class="button primary">Crear admin</button>
-                    </form>
-
-                    <form id="loginForm" class="form accentForm">
-                        <h3>Iniciar sesion</h3>
-                        <label>Correo<input name="correo" type="email" autocomplete="email" required value="alejandro.morales@adminclub.com"></label>
-                        <label>Password<input name="password" type="password" autocomplete="current-password" required value="123456"></label>
-                        <button type="submit" class="button success">Entrar</button>
-                    </form>
-                </div>
-            </div>
-
+        <section id="usuarios" class="workspace">
             <div class="panel">
                 <div class="panelHeader">
                     <div>
-                        <p class="eyebrow">Token</p>
-                        <h2>Credencial activa</h2>
+                        <p class="eyebrow">Usuarios</p>
+                        <h2>Consultas rapidas</h2>
                     </div>
-                    <button id="clearTokenBtn" type="button" class="iconButton" aria-label="Limpiar token">x</button>
                 </div>
-
-                <label class="tokenBox">
-                    Token actual
-                    <textarea id="tokenView" spellcheck="false" placeholder="Aqui aparecera el JWT despues del login"></textarea>
-                </label>
 
                 <div class="quickActions">
                     <button id="usersBtn" type="button" class="button ghost dark">Listar usuarios</button>
@@ -343,38 +323,6 @@
                 <div class="panelHeader">
                     <div>
                         <p class="eyebrow">Administracion</p>
-                        <h2>Crear administrador</h2>
-                    </div>
-                    <span class="pill coral">Protegido</span>
-                </div>
-
-                <form id="additionalAdminForm" class="form gridForm">
-                    <label>Nombre<input name="nombre" autocomplete="given-name" required value="Patricia"></label>
-                    <label>Apellido<input name="apellido" autocomplete="family-name" required value="Luna"></label>
-                    <label>Correo<input name="correo" type="email" autocomplete="email" required value="patricia.luna@adminclub.com"></label>
-                    <label>Telefono<input name="telefono" autocomplete="tel" value="5554443333"></label>
-                    <label>Password<input name="password" type="password" autocomplete="new-password" required minlength="6" value="123456"></label>
-                    <button type="submit" class="button primary">Crear administrador</button>
-                </form>
-            </div>
-
-            <div class="panel">
-                <div class="panelHeader">
-                    <div>
-                        <p class="eyebrow">Permisos</p>
-                        <h2>Alta con rol</h2>
-                    </div>
-                    <span class="pill green">ADMINISTRADOR</span>
-                </div>
-                <p class="moduleCardText">Los administradores adicionales se crean con JWT activo y quedan listos para iniciar sesion con los mismos permisos.</p>
-            </div>
-        </section>
-
-        <section class="workspace">
-            <div class="panel">
-                <div class="panelHeader">
-                    <div>
-                        <p class="eyebrow">Administracion</p>
                         <h2>Crear usuario</h2>
                     </div>
                     <span class="pill coral">Roles</span>
@@ -390,7 +338,6 @@
                         <select name="rol" required>
                             <option value="TRABAJADOR">TRABAJADOR</option>
                             <option value="ENTRENADOR">ENTRENADOR</option>
-                            <option value="ADMINISTRADOR">ADMINISTRADOR</option>
                             <option value="SOPORTE_TECNICO">SOPORTE_TECNICO</option>
                         </select>
                     </label>
@@ -419,6 +366,48 @@
             </div>
         </section>
 
+        <section class="workspace">
+            <div class="panel">
+                <div class="panelHeader">
+                    <div>
+                        <p class="eyebrow">Control administrativo</p>
+                        <h2>Eliminar registros</h2>
+                    </div>
+                    <span class="pill coral">Confirmacion</span>
+                </div>
+
+                <form id="deleteItemForm" class="form gridForm">
+                    <label>Tipo de registro
+                        <select id="deleteTypeSelect" name="tipo" required>
+                            <option value="usuario">Usuarios</option>
+                            <option value="entrenador">Entrenadores</option>
+                            <option value="actividad">Actividades</option>
+                            <option value="instalacion">Instalaciones</option>
+                            <option value="membresia">Membresias</option>
+                        </select>
+                    </label>
+                    <label>Elemento
+                        <select id="deleteItemSelect" name="id" required>
+                            <option value="">Selecciona un elemento</option>
+                        </select>
+                    </label>
+                    <button id="refreshDeleteItemsBtn" type="button" class="button ghost dark">Actualizar lista</button>
+                    <button type="submit" class="button danger">Eliminar seleccionado</button>
+                </form>
+            </div>
+
+            <div class="panel">
+                <div class="panelHeader">
+                    <div>
+                        <p class="eyebrow">Proteccion</p>
+                        <h2>Administradores bloqueados</h2>
+                    </div>
+                    <span class="pill green">Seguro</span>
+                </div>
+                <p class="moduleCardText">Los administradores no aparecen como opcion de eliminacion. Si se intenta borrar uno por API, el backend tambien lo rechaza.</p>
+            </div>
+        </section>
+
         <section id="reportes" class="section responseSection">
             <div class="sectionHeader">
                 <div>
@@ -432,13 +421,30 @@
                     <span class="moduleIcon">OK</span>
                     <div>
                         <h3>Esperando una accion</h3>
-                        <p>Usa los botones del panel para consultar usuarios, entrenadores, actividades o estado de la API.</p>
+                        <p>Usa los botones del panel para consultar usuarios, entrenadores, actividades, membresias o instalaciones.</p>
                     </div>
                 </article>
             </div>
         </section>
 
     </main>
+
+    <div id="deleteConfirmModal" class="modalOverlay hidden" role="dialog" aria-modal="true" aria-labelledby="deleteConfirmTitle">
+        <section class="modalCard confirmModal">
+            <div class="panelHeader">
+                <div>
+                    <p class="eyebrow">Confirmacion requerida</p>
+                    <h2 id="deleteConfirmTitle">Eliminar elemento</h2>
+                </div>
+                <button id="closeDeleteConfirmBtn" type="button" class="iconButton" aria-label="Cerrar">x</button>
+            </div>
+            <p id="deleteConfirmMessage" class="moduleCardText">Esta accion no se puede deshacer.</p>
+            <div class="heroActions">
+                <button id="confirmDeleteBtn" type="button" class="button compact danger">Eliminar</button>
+                <button id="cancelDeleteBtn" type="button" class="button ghost dark">Cancelar</button>
+            </div>
+        </section>
+    </div>
 
     <script src="/admin/admin.js"></script>
 </body>

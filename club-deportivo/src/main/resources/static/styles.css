@@ -388,6 +388,12 @@ button {
     color: #170906;
 }
 
+.button.danger {
+    border: 1px solid rgba(242, 102, 74, 0.48);
+    background: linear-gradient(135deg, #b83224, var(--coral));
+    color: #fff3ef;
+}
+
 .iconButton {
     width: 38px;
     min-height: 38px;
@@ -551,6 +557,23 @@ label {
     display: grid;
     grid-template-columns: minmax(0, 1.35fr) minmax(340px, 0.65fr);
     gap: 18px;
+}
+
+.trainerMaterialsWorkspace {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+}
+
+.trainerMaterialsWorkspace .panel {
+    min-height: 370px;
+}
+
+.trainerMaterialsWorkspace .panelHeader {
+    align-items: flex-start;
+}
+
+.trainerMaterialsWorkspace .panelHeader h2 {
+    max-width: 100%;
 }
 
 .panel {
@@ -752,6 +775,12 @@ textarea:focus {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+}
+
+.resultActions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 4px;
 }
 
 .resultMeta span,
@@ -1127,6 +1156,34 @@ textarea:focus {
     padding: 16px;
     box-shadow: var(--shadow);
     white-space: pre-wrap;
+}
+
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: grid;
+    place-items: center;
+    padding: 22px;
+    background: rgba(1, 7, 10, 0.72);
+    backdrop-filter: blur(12px);
+}
+
+.modalOverlay.hidden {
+    display: none;
+}
+
+.modalCard {
+    width: min(520px, 100%);
+    border: 1px solid rgba(242, 102, 74, 0.28);
+    border-radius: 8px;
+    background: linear-gradient(180deg, rgba(8, 20, 26, 0.98), rgba(2, 8, 11, 0.98));
+    box-shadow: var(--shadow);
+    padding: 22px;
+}
+
+.confirmModal .heroActions {
+    justify-content: flex-end;
 }
 
 @media (max-width: 1120px) {

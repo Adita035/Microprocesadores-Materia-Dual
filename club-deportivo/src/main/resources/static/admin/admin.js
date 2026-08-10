@@ -1,11 +1,28 @@
 const tokenKey = "clubDeportivoJwt";
 const userKey = "clubDeportivoUser";
 const output = document.querySelector("#output");
-const tokenView = document.querySelector("#tokenView");
 const sessionStatus = document.querySelector("#sessionStatus");
 const sessionCard = document.querySelector(".sessionCard");
 const adminHeroBannerTrack = document.querySelector("#adminHeroBannerTrack");
+const facilityNameSelect = document.querySelector("#facilityNameSelect");
+const membershipNameSelect = document.querySelector("#membershipNameSelect");
+const assignActivitySelect = document.querySelector("#assignActivitySelect");
+const assignTrainerSelect = document.querySelector("#assignTrainerSelect");
+const deleteConfirmModal = document.querySelector("#deleteConfirmModal");
+const deleteConfirmTitle = document.querySelector("#deleteConfirmTitle");
+const deleteConfirmMessage = document.querySelector("#deleteConfirmMessage");
+const confirmDeleteBtn = document.querySelector("#confirmDeleteBtn");
+const deleteTypeSelect = document.querySelector("#deleteTypeSelect");
+const deleteItemSelect = document.querySelector("#deleteItemSelect");
 let adminHeroSlideIndex = 0;
+let pendingDelete = null;
+let deleteCatalogs = {
+    usuario: [],
+    entrenador: [],
+    actividad: [],
+    instalacion: [],
+    membresia: [],
+};
 
 function getToken() {
     return localStorage.getItem(tokenKey) || "";
@@ -30,29 +47,9 @@ if (!hasAdminAccess()) {
     window.location.replace("/");
 }
 
-function setSession(token, user = null) {
-    if (token) {
-        localStorage.setItem(tokenKey, token);
-    } else {
-        localStorage.removeItem(tokenKey);
-    }
-
-    if (user) {
-        localStorage.setItem(userKey, JSON.stringify(user));
-    } else {
-        localStorage.removeItem(userKey);
-    }
-    renderToken();
-}
-
-function setToken(token) {
-    setSession(token, getUser());
-}
-
 function renderToken() {
     const token = getToken();
     const user = getUser();
-    tokenView.value = token;
     sessionStatus.textContent = token ? (user ? `${user.nombre} ${user.apellido}` : "Token activo") : "Sin sesion";
     sessionCard.classList.toggle("active", Boolean(token));
 }
@@ -199,6 +196,7 @@ function renderUsers(title, users) {
                         <span>Plan: ${user.membresia || "No asignado"}</span>
                         <span>Renovacion: ${formatRenewal(user)}</span>
                     </div>
+                    ${user.rol === "ADMINISTRADOR" ? "" : renderDeleteAction("usuario", user.id, `${user.nombre} ${user.apellido}`)}
                 </article>
             `).join("")}
         </div>
@@ -226,6 +224,7 @@ function renderMemberships(title, memberships) {
                         <span>Precio: ${money(membership.precio)}</span>
                         <span>Duracion: ${membership.duracionDias || 0} dias</span>
                     </div>
+                    ${renderDeleteAction("membresia", membership.id, membership.nombre)}
                 </article>
             `).join("")}
         </div>
@@ -252,6 +251,7 @@ function renderFacilities(title, facilities) {
                         <span>ID: ${facility.id}</span>
                         <span>Capacidad: ${facility.capacidad || 0}</span>
                     </div>
+                    ${renderDeleteAction("instalacion", facility.id, facility.nombre)}
                 </article>
             `).join("")}
         </div>
@@ -276,6 +276,7 @@ function renderTrainers(title, trainers) {
                         <span>ID entrenador: ${trainer.id}</span>
                         <span>Telefono: ${trainer.usuario?.telefono || "Sin telefono"}</span>
                     </div>
+                    ${renderDeleteAction("entrenador", trainer.id, `${trainer.usuario?.nombre || "Entrenador"} ${trainer.usuario?.apellido || ""}`.trim())}
                 </article>
             `).join("")}
         </div>
@@ -300,6 +301,7 @@ function renderActivitiesResult(title, activities) {
                         <span>${formatSchedule(activity)}</span>
                         <span>${trainerNames(activity)}</span>
                     </div>
+                    ${renderDeleteAction("actividad", activity.id, activity.nombre)}
                 </article>
             `).join("")}
         </div>
@@ -329,6 +331,22 @@ function renderGenericCard(item) {
     return `<article class="resultCard">${renderGenericDetails(item)}</article>`;
 }
 
+function renderDeleteAction(type, id, name) {
+    return `
+        <div class="resultActions">
+            <button
+                type="button"
+                class="button compact danger"
+                data-delete-type="${type}"
+                data-delete-id="${id}"
+                data-delete-name="${escapeHtml(name)}"
+            >
+                Eliminar
+            </button>
+        </div>
+    `;
+}
+
 function renderGenericDetails(item) {
     if (!item || typeof item !== "object") {
         return `<p>${item || "Operacion completada"}</p>`;
@@ -348,7 +366,6 @@ function successMessage(title, body) {
     if (body?.mensaje) return body.mensaje;
     if (title.includes("Crear")) return "Registro creado correctamente.";
     if (title.includes("Login")) return "Sesion iniciada correctamente.";
-    if (title.includes("Health")) return "La API esta disponible.";
     return "Operacion completada correctamente.";
 }
 
@@ -387,61 +404,6 @@ function trainerNames(activity) {
         .map((trainer) => `${trainer.usuario.nombre} ${trainer.usuario.apellido}`)
         .join(", ");
 }
-
-document.querySelector("#adminForm").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const title = "Crear administrador";
-    try {
-        const result = await request("/api/usuarios/admin", {
-            method: "POST",
-            auth: false,
-            body: formToJson(event.currentTarget),
-        });
-        printResult(title, result);
-    } catch (error) {
-        printError(title, error);
-    }
-});
-
-document.querySelector("#loginForm").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const title = "Login";
-    try {
-        const result = await request("/api/auth/login", {
-            method: "POST",
-            auth: false,
-            body: formToJson(event.currentTarget),
-        });
-        if (result.ok && result.body?.token) {
-            if (result.body.usuario?.rol !== "ADMINISTRADOR") {
-                printResult(title, {
-                    ...result,
-                    ok: false,
-                    body: { mensaje: "Tu cuenta no tiene permisos de administrador." },
-                });
-                return;
-            }
-            setSession(result.body.token, result.body.usuario);
-        }
-        printResult(title, result);
-    } catch (error) {
-        printError(title, error);
-    }
-});
-
-document.querySelector("#additionalAdminForm").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const title = "Crear administrador adicional";
-    try {
-        const result = await request("/api/usuarios/administradores", {
-            method: "POST",
-            body: formToJson(event.currentTarget),
-        });
-        printResult(title, result);
-    } catch (error) {
-        printError(title, error);
-    }
-});
 
 document.querySelector("#userForm").addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -490,9 +452,12 @@ document.querySelector("#assignTrainerForm").addEventListener("submit", async (e
     const title = "Asignar entrenador";
     const data = formToJson(event.currentTarget);
     try {
-        const result = await request(`/api/actividades/${data.actividadId}/entrenadores`, {
+        const result = await request("/api/actividades/asignaciones/por-nombre", {
             method: "POST",
-            body: { entrenadorId: data.entrenadorId },
+            body: {
+                actividad: data.actividad,
+                entrenador: data.entrenador,
+            },
         });
         printResult(title, result);
     } catch (error) {
@@ -519,9 +484,12 @@ document.querySelector("#membershipStatusForm").addEventListener("submit", async
     const title = "Actualizar membresia";
     const data = formToJson(event.currentTarget);
     try {
-        const result = await request(`/api/membresias/${data.membresiaId}/estado`, {
+        const result = await request("/api/membresias/por-nombre/estado", {
             method: "PATCH",
-            body: { activa: data.activa },
+            body: {
+                nombre: data.nombre,
+                activa: data.activa,
+            },
         });
         printResult(title, result);
     } catch (error) {
@@ -548,20 +516,14 @@ document.querySelector("#facilityStatusForm").addEventListener("submit", async (
     const title = "Actualizar instalacion";
     const data = formToJson(event.currentTarget);
     try {
-        const result = await request(`/api/instalaciones/${data.instalacionId}/disponibilidad`, {
+        const result = await request("/api/instalaciones/por-nombre/disponibilidad", {
             method: "PATCH",
-            body: { disponible: data.disponible },
+            body: {
+                nombre: data.nombre,
+                disponible: data.disponible,
+            },
         });
         printResult(title, result);
-    } catch (error) {
-        printError(title, error);
-    }
-});
-
-document.querySelector("#healthBtn").addEventListener("click", async () => {
-    const title = "Health";
-    try {
-        printResult(title, await request("/actuator/health", { auth: false }));
     } catch (error) {
         printError(title, error);
     }
@@ -655,14 +617,218 @@ document.querySelector("#availableFacilitiesBtn").addEventListener("click", () =
 document.querySelector("#prevAdminHeroSlideBtn").addEventListener("click", () => moveAdminHeroSlide(-1));
 document.querySelector("#nextAdminHeroSlideBtn").addEventListener("click", () => moveAdminHeroSlide(1));
 
-document.querySelector("#clearTokenBtn").addEventListener("click", () => {
-    setSession("");
-    output.innerHTML = renderMessageCard("Sesion", "Token eliminado. Vuelve a iniciar sesion para usar el panel.", true);
-    window.location.replace("/");
+output.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-delete-type]");
+    if (!button) return;
+
+    openDeleteConfirm({
+        type: button.dataset.deleteType,
+        id: button.dataset.deleteId,
+        name: button.dataset.deleteName,
+    });
 });
 
-tokenView.addEventListener("input", () => {
-    setToken(tokenView.value.trim());
+document.querySelector("#closeDeleteConfirmBtn").addEventListener("click", closeDeleteConfirm);
+document.querySelector("#cancelDeleteBtn").addEventListener("click", closeDeleteConfirm);
+confirmDeleteBtn.addEventListener("click", executePendingDelete);
+deleteTypeSelect.addEventListener("change", () => loadDeleteCatalogForType(deleteTypeSelect.value));
+document.querySelector("#refreshDeleteItemsBtn").addEventListener("click", () => loadDeleteCatalogForType(deleteTypeSelect.value));
+
+document.querySelector("#deleteItemForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const type = deleteTypeSelect.value;
+    const id = deleteItemSelect.value;
+    const selectedItem = deleteCatalogs[type].find((item) => String(item.id) === String(id));
+
+    if (!selectedItem) {
+        printResult("Eliminar elemento", {
+            ok: false,
+            statusText: "Seleccion requerida",
+            body: { mensaje: "Selecciona un elemento para eliminar." },
+        });
+        return;
+    }
+
+    openDeleteConfirm({
+        type,
+        id,
+        name: selectedItem.name,
+    });
 });
+
+async function loadAdminSelects() {
+    await Promise.all([
+        loadFacilitiesSelect(),
+        loadMembershipsSelect(),
+        loadActivitiesSelect(),
+        loadTrainersSelect(),
+    ]);
+    await loadDeleteCatalogForType(deleteTypeSelect.value);
+}
+
+async function loadFacilitiesSelect() {
+    const result = await request("/api/instalaciones");
+    if (!result.ok || !Array.isArray(result.body)) return;
+    facilityNameSelect.innerHTML = `
+        <option value="">Selecciona una instalacion</option>
+        ${result.body.map((facility) => `<option value="${escapeHtml(facility.nombre)}">${escapeHtml(facility.nombre)}</option>`).join("")}
+    `;
+}
+
+async function loadActivitiesSelect() {
+    const result = await request("/api/actividades");
+    if (!result.ok || !Array.isArray(result.body)) return;
+    assignActivitySelect.innerHTML = `
+        <option value="">Selecciona una actividad</option>
+        ${result.body.map((activity) => `<option value="${escapeHtml(activity.nombre)}">${escapeHtml(activity.nombre)}</option>`).join("")}
+    `;
+}
+
+async function loadMembershipsSelect() {
+    const result = await request("/api/membresias");
+    if (!result.ok || !Array.isArray(result.body)) return;
+    membershipNameSelect.innerHTML = `
+        <option value="">Selecciona una membresia</option>
+        ${result.body.map((membership) => `<option value="${escapeHtml(membership.nombre)}">${escapeHtml(membership.nombre)}</option>`).join("")}
+    `;
+}
+
+async function loadTrainersSelect() {
+    const result = await request("/api/entrenadores");
+    if (!result.ok || !Array.isArray(result.body)) return;
+    assignTrainerSelect.innerHTML = `
+        <option value="">Selecciona un entrenador</option>
+        ${result.body.map((trainer) => {
+            const fullName = `${trainer.usuario?.nombre || ""} ${trainer.usuario?.apellido || ""}`.trim();
+            return `<option value="${escapeHtml(fullName)}">${escapeHtml(fullName)}</option>`;
+        }).join("")}
+    `;
+}
+
+async function loadDeleteCatalogForType(type) {
+    deleteItemSelect.innerHTML = '<option value="">Cargando elementos...</option>';
+    const result = await request(deleteListPath(type));
+    deleteCatalogs[type] = normalizeDeleteCatalog(type, result);
+    renderDeleteItemOptions();
+}
+
+function deleteListPath(type) {
+    const paths = {
+        usuario: "/api/usuarios",
+        entrenador: "/api/entrenadores",
+        actividad: "/api/actividades",
+        instalacion: "/api/instalaciones",
+        membresia: "/api/membresias",
+    };
+    return paths[type];
+}
+
+function normalizeDeleteCatalog(type, result) {
+    if (type === "usuario") return normalizeDeleteUsers(result);
+    if (type === "entrenador") return normalizeDeleteTrainers(result);
+    return normalizeDeleteItems(result, "nombre");
+}
+
+function normalizeDeleteUsers(result) {
+    if (!result.ok || !Array.isArray(result.body)) return [];
+    return result.body
+        .filter((user) => user.rol !== "ADMINISTRADOR")
+        .map((user) => ({
+            id: user.id,
+            name: `${user.nombre} ${user.apellido} - ${user.rol}`,
+        }));
+}
+
+function normalizeDeleteTrainers(result) {
+    if (!result.ok || !Array.isArray(result.body)) return [];
+    return result.body.map((trainer) => ({
+        id: trainer.id,
+        name: `${trainer.usuario?.nombre || "Entrenador"} ${trainer.usuario?.apellido || ""}`.trim(),
+    }));
+}
+
+function normalizeDeleteItems(result, nameKey) {
+    if (!result.ok || !Array.isArray(result.body)) return [];
+    return result.body.map((item) => ({
+        id: item.id,
+        name: item[nameKey] || `Registro ${item.id}`,
+    }));
+}
+
+function renderDeleteItemOptions() {
+    const type = deleteTypeSelect.value;
+    const items = deleteCatalogs[type] || [];
+    if (!items.length) {
+        deleteItemSelect.innerHTML = '<option value="">No hay elementos disponibles</option>';
+        return;
+    }
+
+    deleteItemSelect.innerHTML = `
+        <option value="">Selecciona un elemento</option>
+        ${items.map((item) => `<option value="${item.id}">${escapeHtml(item.name)}</option>`).join("")}
+    `;
+}
+
+function openDeleteConfirm(item) {
+    pendingDelete = item;
+    deleteConfirmTitle.textContent = `Eliminar ${deleteLabel(item.type)}`;
+    deleteConfirmMessage.textContent = `Estas por eliminar "${item.name}". Confirma solo si estas seguro de continuar.`;
+    deleteConfirmModal.classList.remove("hidden");
+}
+
+function closeDeleteConfirm() {
+    pendingDelete = null;
+    deleteConfirmModal.classList.add("hidden");
+}
+
+async function executePendingDelete() {
+    if (!pendingDelete) return;
+
+    const item = pendingDelete;
+    const title = `Eliminar ${deleteLabel(item.type)}`;
+    closeDeleteConfirm();
+
+    try {
+        const result = await request(deletePath(item), { method: "DELETE" });
+        printResult(title, result.ok ? { ...result, body: { mensaje: `${deleteLabel(item.type)} eliminado correctamente.` } } : result);
+        if (result.ok) {
+            await loadAdminSelects();
+        }
+    } catch (error) {
+        printError(title, error);
+    }
+}
+
+function deletePath(item) {
+    const paths = {
+        usuario: `/api/usuarios/${item.id}`,
+        entrenador: `/api/entrenadores/${item.id}`,
+        actividad: `/api/actividades/${item.id}`,
+        instalacion: `/api/instalaciones/${item.id}`,
+        membresia: `/api/membresias/${item.id}`,
+    };
+    return paths[item.type];
+}
+
+function deleteLabel(type) {
+    const labels = {
+        usuario: "usuario",
+        entrenador: "entrenador",
+        actividad: "actividad",
+        instalacion: "instalacion",
+        membresia: "membresia",
+    };
+    return labels[type] || "elemento";
+}
+
+function escapeHtml(value) {
+    return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
 
 renderToken();
+loadAdminSelects().catch((error) => printError("Cargar catalogos", error));
