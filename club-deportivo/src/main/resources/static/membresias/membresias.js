@@ -20,8 +20,17 @@ function getUser() {
     }
 }
 
-function showToast(message) {
-    toast.textContent = typeof message === "string" ? message : JSON.stringify(message, null, 2);
+function messageText(data, fallback = "Operacion procesada.") {
+    if (!data) return fallback;
+    if (typeof data === "string") return data;
+    if (data.mensaje) return data.mensaje;
+    if (data.message) return data.message;
+    if (data.error) return data.error;
+    return fallback;
+}
+
+function showToast(message, fallback = "Operacion procesada.") {
+    toast.textContent = messageText(message, fallback);
     toast.classList.remove("hidden");
     window.setTimeout(() => toast.classList.add("hidden"), 5000);
 }
@@ -197,7 +206,7 @@ async function selectMembership(membershipId) {
         showToast(result.body?.mensaje || "Membresia seleccionada.");
         renderCurrentMembership(result.body.usuarioMembresia);
     } else {
-        showToast(result.body || "No se pudo seleccionar la membresia.");
+        showToast(result.body, "No se pudo seleccionar la membresia.");
     }
 }
 
