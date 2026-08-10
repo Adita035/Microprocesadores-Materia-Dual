@@ -1,11 +1,14 @@
 package com.clubdeportivo.controller
 
 import com.clubdeportivo.dto.ActualizarDisponibilidadInstalacionRequest
+import com.clubdeportivo.dto.ActualizarDisponibilidadInstalacionPorNombreRequest
 import com.clubdeportivo.dto.CrearInstalacionRequest
 import com.clubdeportivo.dto.InstalacionResponse
 import com.clubdeportivo.service.InstalacionService
 import jakarta.validation.Valid
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.Authentication
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -48,4 +51,16 @@ class InstalacionController(
         @Valid @RequestBody request: ActualizarDisponibilidadInstalacionRequest,
     ): Mono<InstalacionResponse> =
         instalacionService.actualizarDisponibilidad(id, request)
+
+    @PatchMapping("/por-nombre/disponibilidad")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TRABAJADOR')")
+    fun actualizarDisponibilidadPorNombre(
+        @Valid @RequestBody request: ActualizarDisponibilidadInstalacionPorNombreRequest,
+    ): Mono<InstalacionResponse> =
+        instalacionService.actualizarDisponibilidadPorNombre(request)
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    fun eliminar(@PathVariable id: Long, authentication: Authentication): Mono<Void> =
+        instalacionService.eliminar(id, authentication.name)
 }

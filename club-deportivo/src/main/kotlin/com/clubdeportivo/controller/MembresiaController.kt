@@ -2,6 +2,7 @@ package com.clubdeportivo.controller
 
 import com.clubdeportivo.dto.CrearMembresiaRequest
 import com.clubdeportivo.dto.ActualizarEstadoMembresiaRequest
+import com.clubdeportivo.dto.ActualizarEstadoMembresiaPorNombreRequest
 import com.clubdeportivo.dto.MembresiaResponse
 import com.clubdeportivo.dto.SeleccionMembresiaResponse
 import com.clubdeportivo.dto.SeleccionarMembresiaRequest
@@ -10,6 +11,7 @@ import com.clubdeportivo.service.MembresiaService
 import jakarta.validation.Valid
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -46,6 +48,18 @@ class MembresiaController(
         @Valid @RequestBody request: ActualizarEstadoMembresiaRequest,
     ): Mono<MembresiaResponse> =
         membresiaService.actualizarEstado(id, request)
+
+    @PatchMapping("/por-nombre/estado")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    fun actualizarEstadoPorNombre(
+        @Valid @RequestBody request: ActualizarEstadoMembresiaPorNombreRequest,
+    ): Mono<MembresiaResponse> =
+        membresiaService.actualizarEstadoPorNombre(request)
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    fun eliminar(@PathVariable id: Long, authentication: Authentication): Mono<Void> =
+        membresiaService.eliminar(id, authentication.name)
 
     @PostMapping("/seleccion")
     @PreAuthorize("isAuthenticated()")

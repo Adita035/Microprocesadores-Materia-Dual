@@ -11,6 +11,7 @@ import com.clubdeportivo.service.EntrenadorService
 import jakarta.validation.Valid
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -68,4 +69,9 @@ class EntrenadorController(
         @Valid @RequestBody request: ActualizarEntrenadorRequest,
     ): Mono<EntrenadorResponse> =
         entrenadorService.actualizar(id, request)
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    fun eliminar(@PathVariable id: Long, authentication: Authentication): Mono<Void> =
+        entrenadorService.eliminar(id, authentication.name)
 }

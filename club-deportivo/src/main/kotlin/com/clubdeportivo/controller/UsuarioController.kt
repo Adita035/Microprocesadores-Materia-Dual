@@ -6,6 +6,8 @@ import com.clubdeportivo.dto.UsuarioResponse
 import jakarta.validation.Valid
 import com.clubdeportivo.service.UsuarioService
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.Authentication
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -52,4 +54,9 @@ class UsuarioController(
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     fun listarPorRol(@PathVariable rol: String): Flux<UsuarioResponse> =
         usuarioService.listarPorRol(rol)
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    fun eliminar(@PathVariable id: Long, authentication: Authentication): Mono<Void> =
+        usuarioService.eliminar(id, authentication.name)
 }

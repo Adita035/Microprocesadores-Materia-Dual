@@ -4,6 +4,7 @@ import com.clubdeportivo.dto.ActividadResponse
 import com.clubdeportivo.dto.ActualizarActividadRequest
 import com.clubdeportivo.dto.ActualizarEstadoActividadRequest
 import com.clubdeportivo.dto.AsignarEntrenadorRequest
+import com.clubdeportivo.dto.AsignarEntrenadorPorNombreRequest
 import com.clubdeportivo.dto.CrearActividadRequest
 import com.clubdeportivo.dto.InscripcionActividadResponse
 import com.clubdeportivo.service.ActividadService
@@ -11,6 +12,7 @@ import jakarta.validation.Valid
 import org.springframework.security.core.Authentication
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -76,6 +78,11 @@ class ActividadController(
     ): Mono<ActividadResponse> =
         actividadService.actualizarEstado(id, request)
 
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    fun eliminar(@PathVariable id: Long, authentication: Authentication): Mono<Void> =
+        actividadService.eliminar(id, authentication.name)
+
     @PostMapping("/{id}/entrenadores")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     fun asignarEntrenador(
@@ -84,6 +91,13 @@ class ActividadController(
     ): Mono<ActividadResponse> =
         actividadService.asignarEntrenador(id, request)
 
+    @PostMapping("/asignaciones/por-nombre")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    fun asignarEntrenadorPorNombre(
+        @Valid @RequestBody request: AsignarEntrenadorPorNombreRequest,
+    ): Mono<ActividadResponse> =
+        actividadService.asignarEntrenadorPorNombre(request)
+
     @PostMapping("/{id}/inscripcion")
     @PreAuthorize("isAuthenticated()")
     fun inscribir(
@@ -91,4 +105,12 @@ class ActividadController(
         authentication: Authentication,
     ): Mono<InscripcionActividadResponse> =
         actividadService.inscribir(id, authentication.name)
+
+    @DeleteMapping("/{id}/inscripcion")
+    @PreAuthorize("isAuthenticated()")
+    fun cancelarInscripcion(
+        @PathVariable id: Long,
+        authentication: Authentication,
+    ): Mono<InscripcionActividadResponse> =
+        actividadService.cancelarInscripcion(id, authentication.name)
 }
