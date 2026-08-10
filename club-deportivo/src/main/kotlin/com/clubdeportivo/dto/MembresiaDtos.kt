@@ -28,6 +28,13 @@ data class ActualizarEstadoMembresiaRequest(
     val activa: Boolean,
 )
 
+data class ActualizarEstadoMembresiaPorNombreRequest(
+    @field:NotBlank
+    val nombre: String,
+
+    val activa: Boolean,
+)
+
 data class MembresiaResponse(
     val id: Long,
     val nombre: String,

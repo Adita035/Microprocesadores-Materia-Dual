@@ -19,6 +19,13 @@ data class ActualizarDisponibilidadInstalacionRequest(
     val disponible: Boolean,
 )
 
+data class ActualizarDisponibilidadInstalacionPorNombreRequest(
+    @field:NotBlank
+    val nombre: String,
+
+    val disponible: Boolean,
+)
+
 data class InstalacionResponse(
     val id: Long,
     val nombre: String,

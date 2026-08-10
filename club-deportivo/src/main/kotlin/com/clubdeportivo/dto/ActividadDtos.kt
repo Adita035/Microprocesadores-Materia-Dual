@@ -36,6 +36,14 @@ data class AsignarEntrenadorRequest(
     val entrenadorId: Long,
 )
 
+data class AsignarEntrenadorPorNombreRequest(
+    @field:NotBlank
+    val actividad: String,
+
+    @field:NotBlank
+    val entrenador: String,
+)
+
 data class ActividadResponse(
     val id: Long,
     val nombre: String,
