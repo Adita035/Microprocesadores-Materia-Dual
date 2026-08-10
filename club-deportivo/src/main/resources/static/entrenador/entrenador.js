@@ -10,8 +10,10 @@ const studentsStatus = document.querySelector("#studentsStatus");
 const trainerToast = document.querySelector("#trainerToast");
 const materialSelect = document.querySelector("#materialSelect");
 const materialRequestsPanel = document.querySelector("#materialRequestsPanel");
+const trainerScheduleGrid = document.querySelector("#trainerScheduleGrid");
 let assignedActivities = [];
 let availableMaterials = [];
+let currentMaterialRequests = [];
 
 function getToken() {
     return localStorage.getItem(tokenKey) || "";
@@ -60,10 +62,39 @@ async function request(path, options = {}) {
     return { ok: response.ok, status: response.status, body };
 }
 
-function showToast(message) {
-    trainerToast.textContent = message;
+function messageText(data, fallback = "Operacion procesada.") {
+    if (!data) return fallback;
+    if (typeof data === "string") return data;
+    if (data.mensaje) return data.mensaje;
+    if (data.message) return data.message;
+    if (data.error) return data.error;
+    return fallback;
+}
+
+function showToast(message, fallback = "Operacion procesada.") {
+    trainerToast.textContent = messageText(message, fallback);
     trainerToast.classList.remove("hidden");
     window.setTimeout(() => trainerToast.classList.add("hidden"), 4500);
+}
+
+function hiddenMaterialRequestsKey() {
+    const user = getUser();
+    return `clubHiddenMaterialRequests:${user?.correo || "trainer"}`;
+}
+
+function getHiddenMaterialRequestIds() {
+    const storedIds = localStorage.getItem(hiddenMaterialRequestsKey());
+    if (!storedIds) return [];
+    try {
+        return JSON.parse(storedIds);
+    } catch {
+        localStorage.removeItem(hiddenMaterialRequestsKey());
+        return [];
+    }
+}
+
+function setHiddenMaterialRequestIds(ids) {
+    localStorage.setItem(hiddenMaterialRequestsKey(), JSON.stringify(Array.from(new Set(ids))));
 }
 
 function activityImageUrl(activity) {
@@ -198,13 +229,17 @@ async function loadMaterials() {
 }
 
 function renderMaterialRequests(requests) {
-    if (!requests.length) {
+    currentMaterialRequests = requests;
+    const hiddenIds = getHiddenMaterialRequestIds();
+    const visibleRequests = requests.filter((request) => !hiddenIds.includes(request.id));
+
+    if (!visibleRequests.length) {
         materialRequestsPanel.innerHTML = `
             <article class="resultEmpty">
                 <span class="moduleIcon">0</span>
                 <div>
                     <h3>No tienes solicitudes</h3>
-                    <p>Cuando solicites materiales para una actividad, apareceran aqui.</p>
+                    <p>Cuando solicites materiales, apareceran aqui. Si limpiaste el historial, solo se oculto en este panel.</p>
                 </div>
             </article>
         `;
@@ -213,7 +248,7 @@ function renderMaterialRequests(requests) {
 
     materialRequestsPanel.innerHTML = `
         <div class="resultGrid">
-            ${requests.map((request) => `
+            ${visibleRequests.map((request) => `
                 <article class="resultCard">
                     <div class="resultCardHeader">
                         <div>
@@ -230,6 +265,54 @@ function renderMaterialRequests(requests) {
             `).join("")}
         </div>
     `;
+}
+
+function clearMaterialRequestsPanel() {
+    const hiddenIds = getHiddenMaterialRequestIds();
+    const visibleIds = currentMaterialRequests
+        .map((request) => request.id)
+        .filter((id) => !hiddenIds.includes(id));
+
+    if (!visibleIds.length) {
+        showToast("No hay solicitudes visibles para limpiar.");
+        return;
+    }
+
+    setHiddenMaterialRequestIds([...hiddenIds, ...visibleIds]);
+    renderMaterialRequests(currentMaterialRequests);
+    showToast("Historial limpiado del panel. Los registros siguen guardados en la base de datos.");
+}
+
+function renderSchedule(container, schedules) {
+    if (!schedules.length) {
+        container.innerHTML = '<article class="emptyState">No tienes horarios registrados.</article>';
+        return;
+    }
+
+    container.innerHTML = schedules.map((schedule) => `
+        <article class="resultCard">
+            <div class="resultCardHeader">
+                <div>
+                    <p class="eyebrow">${schedule.usuario.rol}</p>
+                    <h3>${schedule.diaSemana || "Dia por definir"}</h3>
+                </div>
+                <span class="pill green">Activo</span>
+            </div>
+            <div class="resultMeta">
+                <span>Entrada: ${schedule.horaEntrada || "--:--"}</span>
+                <span>Salida: ${schedule.horaSalida || "--:--"}</span>
+            </div>
+        </article>
+    `).join("");
+}
+
+async function loadSchedule() {
+    const result = await request("/api/horarios/mis-horarios");
+    if (result.ok) {
+        renderSchedule(trainerScheduleGrid, result.body || []);
+        return;
+    }
+    trainerScheduleGrid.innerHTML = `<article class="emptyState">${result.body?.mensaje || "No se pudo cargar tu horario."}</article>`;
 }
 
 async function loadMaterialRequests() {
@@ -280,6 +363,8 @@ async function loadStudents(activityId, activityName) {
 
 document.querySelector("#reloadTrainerActivitiesBtn").addEventListener("click", loadTrainerActivities);
 document.querySelector("#reloadMaterialRequestsBtn").addEventListener("click", loadMaterialRequests);
+document.querySelector("#clearMaterialRequestsBtn").addEventListener("click", clearMaterialRequestsPanel);
+document.querySelector("#reloadTrainerScheduleBtn").addEventListener("click", loadSchedule);
 document.querySelector("#materialRequestForm").addEventListener("submit", submitMaterialRequest);
 document.querySelector("#trainerLogoutBtn").addEventListener("click", () => {
     localStorage.removeItem(tokenKey);
@@ -291,4 +376,5 @@ if (requireTrainerSession()) {
     loadTrainerActivities();
     loadMaterials();
     loadMaterialRequests();
+    loadSchedule();
 }

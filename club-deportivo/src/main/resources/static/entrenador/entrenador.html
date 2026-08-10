@@ -22,6 +22,7 @@
             <a href="#mis-actividades">Mis actividades</a>
             <a href="#alumnos">Alumnos</a>
             <a href="#materiales">Materiales</a>
+            <a href="#horario-entrenador">Mi horario</a>
             <span id="trainerUserBadge" class="userBadge"></span>
             <button id="trainerLogoutBtn" type="button" class="button ghost">Cerrar sesion</button>
         </nav>
@@ -82,7 +83,7 @@
             </div>
         </section>
 
-        <section id="materiales" class="workspace">
+        <section id="materiales" class="workspace trainerMaterialsWorkspace">
             <div class="panel">
                 <div class="panelHeader">
                     <div>
@@ -111,7 +112,10 @@
                         <p class="eyebrow">Historial</p>
                         <h2>Mis solicitudes</h2>
                     </div>
-                    <button id="reloadMaterialRequestsBtn" type="button" class="button compact">Actualizar</button>
+                    <div class="quickActions">
+                        <button id="clearMaterialRequestsBtn" type="button" class="button ghost dark">Limpiar historial</button>
+                        <button id="reloadMaterialRequestsBtn" type="button" class="button compact">Actualizar</button>
+                    </div>
                 </div>
 
                 <div id="materialRequestsPanel" class="visualOutput">
@@ -123,6 +127,19 @@
                         </div>
                     </article>
                 </div>
+            </div>
+        </section>
+
+        <section id="horario-entrenador" class="section">
+            <div class="sectionHeader">
+                <div>
+                    <p class="eyebrow">Agenda laboral</p>
+                    <h2>Mi horario</h2>
+                </div>
+                <button id="reloadTrainerScheduleBtn" type="button" class="button compact">Actualizar</button>
+            </div>
+            <div id="trainerScheduleGrid" class="resultGrid">
+                <article class="emptyState">Cargando horario...</article>
             </div>
         </section>
     </main>
