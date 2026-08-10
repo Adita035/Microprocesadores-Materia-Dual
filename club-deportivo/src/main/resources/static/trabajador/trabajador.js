@@ -8,6 +8,7 @@ const workerToast = document.querySelector("#workerToast");
 const requestCount = document.querySelector("#requestCount");
 const materialCount = document.querySelector("#materialCount");
 const facilityCount = document.querySelector("#facilityCount");
+const workerScheduleGrid = document.querySelector("#workerScheduleGrid");
 
 function getToken() {
     return localStorage.getItem(tokenKey) || "";
@@ -56,8 +57,17 @@ async function request(path, options = {}) {
     return { ok: response.ok, status: response.status, body };
 }
 
-function showToast(message) {
-    workerToast.textContent = message;
+function messageText(data, fallback = "Operacion procesada.") {
+    if (!data) return fallback;
+    if (typeof data === "string") return data;
+    if (data.mensaje) return data.mensaje;
+    if (data.message) return data.message;
+    if (data.error) return data.error;
+    return fallback;
+}
+
+function showToast(message, fallback = "Operacion procesada.") {
+    workerToast.textContent = messageText(message, fallback);
     workerToast.classList.remove("hidden");
     window.setTimeout(() => workerToast.classList.add("hidden"), 4500);
 }
@@ -172,6 +182,29 @@ function renderFacilities(facilities) {
     });
 }
 
+function renderSchedule(schedules) {
+    if (!schedules.length) {
+        workerScheduleGrid.innerHTML = '<article class="emptyState">No tienes horarios registrados.</article>';
+        return;
+    }
+
+    workerScheduleGrid.innerHTML = schedules.map((schedule) => `
+        <article class="resultCard">
+            <div class="resultCardHeader">
+                <div>
+                    <p class="eyebrow">${schedule.usuario.rol}</p>
+                    <h3>${schedule.diaSemana || "Dia por definir"}</h3>
+                </div>
+                <span class="pill green">Activo</span>
+            </div>
+            <div class="resultMeta">
+                <span>Entrada: ${schedule.horaEntrada || "--:--"}</span>
+                <span>Salida: ${schedule.horaSalida || "--:--"}</span>
+            </div>
+        </article>
+    `).join("");
+}
+
 async function loadRequests() {
     const result = await request("/api/materiales/solicitudes");
     if (result.ok) {
@@ -197,6 +230,15 @@ async function loadFacilities() {
         return;
     }
     workerFacilitiesGrid.innerHTML = `<article class="emptyState">${result.body?.mensaje || "No se pudieron cargar las instalaciones."}</article>`;
+}
+
+async function loadSchedule() {
+    const result = await request("/api/horarios/mis-horarios");
+    if (result.ok) {
+        renderSchedule(result.body || []);
+        return;
+    }
+    workerScheduleGrid.innerHTML = `<article class="emptyState">${result.body?.mensaje || "No se pudo cargar tu horario."}</article>`;
 }
 
 async function updateRequestStatus(id, estado) {
@@ -240,4 +282,5 @@ if (requireWorkerSession()) {
     loadRequests();
     loadMaterials();
     loadFacilities();
+    loadSchedule();
 }

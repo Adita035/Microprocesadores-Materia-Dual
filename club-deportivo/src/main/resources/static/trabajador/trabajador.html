@@ -22,6 +22,7 @@
             <a href="#solicitudes-materiales">Solicitudes</a>
             <a href="#inventario">Materiales</a>
             <a href="#instalaciones-trabajador">Instalaciones</a>
+            <a href="#horario-trabajador">Mi horario</a>
             <span id="workerUserBadge" class="userBadge"></span>
             <button id="workerLogoutBtn" type="button" class="button ghost">Cerrar sesion</button>
         </nav>
@@ -47,6 +48,18 @@
                     <span>Instalaciones</span>
                     <strong id="facilityCount">0</strong>
                 </article>
+            </div>
+        </section>
+
+        <section id="horario-trabajador" class="section">
+            <div class="sectionHeader">
+                <div>
+                    <p class="eyebrow">Agenda laboral</p>
+                    <h2>Mi horario</h2>
+                </div>
+            </div>
+            <div id="workerScheduleGrid" class="resultGrid">
+                <article class="emptyState">Cargando horario...</article>
             </div>
         </section>
 
@@ -94,6 +107,7 @@
                 <article class="emptyState">Cargando instalaciones...</article>
             </div>
         </section>
+
     </main>
 
     <pre id="workerToast" class="publicToast hidden"></pre>
