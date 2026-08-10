@@ -10,6 +10,7 @@ const logoutBtn = document.querySelector("#logoutBtn");
 const activityDetail = document.querySelector("#activityDetail");
 const authModal = document.querySelector("#authModal");
 const adminPromptModal = document.querySelector("#adminPromptModal");
+const membershipRequiredModal = document.querySelector("#membershipRequiredModal");
 const adminPromptActions = document.querySelector("#adminPromptActions");
 const adminLoginForm = document.querySelector("#adminLoginForm");
 const myActivitiesBtn = document.querySelector("#myActivitiesBtn");
@@ -71,8 +72,17 @@ function renderSession() {
     enrollBtn.classList.toggle("hidden", isAdmin);
 }
 
-function showToast(data) {
-    toast.textContent = typeof data === "string" ? data : JSON.stringify(data, null, 2);
+function messageText(data, fallback = "Operacion procesada.") {
+    if (!data) return fallback;
+    if (typeof data === "string") return data;
+    if (data.mensaje) return data.mensaje;
+    if (data.message) return data.message;
+    if (data.error) return data.error;
+    return fallback;
+}
+
+function showToast(data, fallback = "Operacion procesada.") {
+    toast.textContent = messageText(data, fallback);
     toast.classList.remove("hidden");
     window.setTimeout(() => toast.classList.add("hidden"), 5000);
 }
@@ -142,7 +152,7 @@ function trainerNames(activity) {
         .join(", ");
 }
 
-function renderActivities(container, activities, emptyText) {
+function renderActivities(container, activities, emptyText, options = {}) {
     if (!activities.length) {
         container.innerHTML = `<article class="emptyState">${emptyText}</article>`;
         return;
@@ -160,12 +170,17 @@ function renderActivities(container, activities, emptyText) {
                     <span>${trainerNames(activity)}</span>
                 </div>
                 <button type="button" class="button primary" data-activity-id="${activity.id}">Ver detalle</button>
+                ${options.cancelable ? `<button type="button" class="button compact" data-cancel-activity-id="${activity.id}">Cancelar inscripcion</button>` : ""}
             </div>
         </article>
     `).join("");
 
     container.querySelectorAll("[data-activity-id]").forEach((button) => {
         button.addEventListener("click", () => openActivityDetail(Number(button.dataset.activityId)));
+    });
+
+    container.querySelectorAll("[data-cancel-activity-id]").forEach((button) => {
+        button.addEventListener("click", () => cancelEnrollment(Number(button.dataset.cancelActivityId)));
     });
 }
 
@@ -206,10 +221,10 @@ async function loadMyActivities() {
 
     const result = await request("/api/actividades/mis-inscripciones");
     if (result.ok) {
-        renderActivities(myActivitiesGrid, result.body || [], "Todavia no tienes actividades inscritas.");
+        renderActivities(myActivitiesGrid, result.body || [], "Todavia no tienes actividades inscritas.", { cancelable: true });
         window.location.hash = "#mis-actividades";
     } else {
-        showToast(result.body || "No se pudieron cargar tus actividades.");
+        showToast(result.body, "No se pudieron cargar tus actividades.");
     }
 }
 
@@ -217,7 +232,7 @@ async function openActivityDetail(activityId) {
     selectedActivityId = activityId;
     const result = await request(`/api/actividades/publicas/${activityId}`, { auth: false });
     if (!result.ok) {
-        showToast(result.body || "No se pudo cargar la actividad.");
+        showToast(result.body, "No se pudo cargar la actividad.");
         return;
     }
 
@@ -263,6 +278,14 @@ function closeAdminPromptModal() {
     adminPromptModal.classList.add("hidden");
 }
 
+function openMembershipRequiredModal() {
+    membershipRequiredModal.classList.remove("hidden");
+}
+
+function closeMembershipRequiredModal() {
+    membershipRequiredModal.classList.add("hidden");
+}
+
 function showAdminLoginForm() {
     adminPromptActions.classList.add("hidden");
     adminLoginForm.classList.remove("hidden");
@@ -289,9 +312,21 @@ async function enrollActivity(activityId) {
         return;
     }
     const result = await request(`/api/actividades/${activityId}/inscripcion`, { method: "POST" });
-    showToast(result.body || "Solicitud procesada.");
+    showToast(result.body, "Solicitud procesada.");
+    if (!result.ok && messageText(result.body).toLowerCase().includes("membresia")) {
+        openMembershipRequiredModal();
+        return;
+    }
     if (result.ok) {
         closeActivityDetail();
+        await loadMyActivities();
+    }
+}
+
+async function cancelEnrollment(activityId) {
+    const result = await request(`/api/actividades/${activityId}/inscripcion`, { method: "DELETE" });
+    showToast(result.body, "Solicitud procesada.");
+    if (result.ok) {
         await loadMyActivities();
     }
 }
@@ -314,6 +349,8 @@ document.querySelector("#adminAccessBtn").addEventListener("click", openAdminPro
 document.querySelector("#closeAdminPromptBtn").addEventListener("click", closeAdminPromptModal);
 document.querySelector("#cancelAdminLoginBtn").addEventListener("click", closeAdminPromptModal);
 document.querySelector("#showAdminLoginBtn").addEventListener("click", showAdminLoginForm);
+document.querySelector("#closeMembershipRequiredBtn").addEventListener("click", closeMembershipRequiredModal);
+document.querySelector("#cancelMembershipRequiredBtn").addEventListener("click", closeMembershipRequiredModal);
 document.querySelector("#prevHeroSlideBtn").addEventListener("click", () => moveHeroSlide(-1));
 document.querySelector("#nextHeroSlideBtn").addEventListener("click", () => moveHeroSlide(1));
 enrollBtn.addEventListener("click", () => {
@@ -349,7 +386,7 @@ document.querySelector("#publicLoginForm").addEventListener("submit", async (eve
             await enrollActivity(activityId);
         }
     } else {
-        showToast(result.body || "No se pudo iniciar sesion.");
+        showToast(result.body, "No se pudo iniciar sesion.");
     }
 });
 
@@ -362,7 +399,7 @@ document.querySelector("#publicRegisterForm").addEventListener("submit", async (
         body: data,
     });
     if (!result.ok) {
-        showToast(result.body || "No se pudo crear la cuenta.");
+        showToast(result.body, "No se pudo crear la cuenta.");
         return;
     }
 
@@ -407,7 +444,7 @@ adminLoginForm.addEventListener("submit", async (event) => {
     });
 
     if (!result.ok || !result.body?.token) {
-        showToast(result.body || "No se pudo iniciar sesion administrativa.");
+        showToast(result.body, "No se pudo iniciar sesion administrativa.");
         return;
     }
 

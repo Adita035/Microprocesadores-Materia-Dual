@@ -217,6 +217,19 @@
         </section>
     </div>
 
+    <div id="membershipRequiredModal" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="membershipRequiredTitle">
+        <section class="loginSheet">
+            <button id="closeMembershipRequiredBtn" type="button" class="iconButton closeButton" aria-label="Cerrar aviso de membresia">x</button>
+            <p class="eyebrow">Membresia requerida</p>
+            <h2 id="membershipRequiredTitle">No cuentas con una membresia activa</h2>
+            <p class="detailText">Para inscribirte a una actividad necesitas seleccionar un plan de membresia.</p>
+            <div class="authTabs">
+                <a class="button primary" href="/membresias/membresias.html">Agregar membresia</a>
+                <button id="cancelMembershipRequiredBtn" type="button" class="button ghost dark">Despues</button>
+            </div>
+        </section>
+    </div>
+
     <pre id="toast" class="publicToast hidden"></pre>
 
     <script src="/public/app.js"></script>
