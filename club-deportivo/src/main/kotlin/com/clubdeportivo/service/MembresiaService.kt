@@ -1,6 +1,7 @@
 package com.clubdeportivo.service
 
 import com.clubdeportivo.dto.ActualizarEstadoMembresiaRequest
+import com.clubdeportivo.dto.ActualizarEstadoMembresiaPorNombreRequest
 import com.clubdeportivo.dto.CrearMembresiaRequest
 import com.clubdeportivo.dto.MembresiaResponse
 import com.clubdeportivo.dto.SeleccionMembresiaResponse
@@ -25,6 +26,7 @@ class MembresiaService(
     private val usuarioMembresiaRepository: UsuarioMembresiaRepository,
     private val usuarioRepository: UsuarioRepository,
     private val rolRepository: RolRepository,
+    private val auditoriaService: AuditoriaService,
 ) {
     fun crear(request: CrearMembresiaRequest): Mono<MembresiaResponse> =
         membresiaRepository.save(
@@ -48,6 +50,25 @@ class MembresiaService(
             .switchIfEmpty(Mono.error(NotFoundException("Membresia no encontrada")))
             .flatMap { membresia -> membresiaRepository.save(membresia.copy(activa = request.activa)) }
             .map(::toResponse)
+
+    fun actualizarEstadoPorNombre(request: ActualizarEstadoMembresiaPorNombreRequest): Mono<MembresiaResponse> =
+        membresiaRepository.findByNombre(request.nombre.trim())
+            .switchIfEmpty(Mono.error(NotFoundException("Membresia no encontrada")))
+            .flatMap { membresia -> membresiaRepository.save(membresia.copy(activa = request.activa)) }
+            .map(::toResponse)
+
+    fun eliminar(id: Long, correoAdmin: String): Mono<Void> =
+        membresiaRepository.findById(id)
+            .switchIfEmpty(Mono.error(NotFoundException("Membresia no encontrada")))
+            .flatMap { membresia ->
+                auditoriaService.registrarEliminacion(correoAdmin, "MEMBRESIA", "id=$id, nombre=${membresia.nombre}")
+                    .then(
+                        usuarioMembresiaRepository.findByMembresiaId(id)
+                    .collectList()
+                            .flatMap { relaciones -> usuarioMembresiaRepository.deleteAll(relaciones) },
+                    )
+                    .then(membresiaRepository.delete(membresia))
+            }
 
     fun seleccionar(correo: String, request: SeleccionarMembresiaRequest): Mono<SeleccionMembresiaResponse> =
         usuarioRepository.findByCorreo(correo)

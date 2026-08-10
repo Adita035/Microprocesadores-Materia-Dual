@@ -5,6 +5,7 @@ import com.clubdeportivo.dto.ActualizarActividadRequest
 import com.clubdeportivo.dto.ActualizarEstadoActividadRequest
 import com.clubdeportivo.dto.AlumnoActividadResponse
 import com.clubdeportivo.dto.AsignarEntrenadorRequest
+import com.clubdeportivo.dto.AsignarEntrenadorPorNombreRequest
 import com.clubdeportivo.dto.CrearActividadRequest
 import com.clubdeportivo.dto.InscripcionActividadResponse
 import com.clubdeportivo.entity.Actividad
@@ -20,6 +21,7 @@ import com.clubdeportivo.repository.ActividadRepository
 import com.clubdeportivo.repository.EntrenadorRepository
 import com.clubdeportivo.repository.InscripcionActividadRepository
 import com.clubdeportivo.repository.RolRepository
+import com.clubdeportivo.repository.UsuarioMembresiaRepository
 import com.clubdeportivo.repository.UsuarioRepository
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
@@ -33,6 +35,8 @@ class ActividadService(
     private val inscripcionActividadRepository: InscripcionActividadRepository,
     private val usuarioRepository: UsuarioRepository,
     private val rolRepository: RolRepository,
+    private val usuarioMembresiaRepository: UsuarioMembresiaRepository,
+    private val auditoriaService: AuditoriaService,
 ) {
     private val estadosPermitidos = setOf("PENDIENTE", "EN_PROCESO", "FINALIZADA", "CANCELADA")
 
@@ -134,6 +138,24 @@ class ActividadService(
             }
             .flatMap(::toResponse)
 
+    fun eliminar(id: Long, correoAdmin: String): Mono<Void> =
+        actividadRepository.findById(id)
+            .switchIfEmpty(Mono.error(NotFoundException("Actividad no encontrada")))
+            .flatMap { actividad ->
+                auditoriaService.registrarEliminacion(correoAdmin, "ACTIVIDAD", "id=$id, nombre=${actividad.nombre}")
+                    .then(
+                        inscripcionActividadRepository.findByActividadId(id)
+                    .collectList()
+                            .flatMap { inscripciones -> inscripcionActividadRepository.deleteAll(inscripciones) },
+                    )
+                    .then(
+                        actividadEntrenadorRepository.findByActividadId(id)
+                            .collectList()
+                            .flatMap { asignaciones -> actividadEntrenadorRepository.deleteAll(asignaciones) },
+                    )
+                    .then(actividadRepository.delete(actividad))
+            }
+
     fun asignarEntrenador(id: Long, request: AsignarEntrenadorRequest): Mono<ActividadResponse> =
         actividadRepository.findById(id)
             .switchIfEmpty(Mono.error(NotFoundException("Actividad no encontrada")))
@@ -158,6 +180,19 @@ class ActividadService(
             }
             .flatMap(::toResponse)
 
+    fun asignarEntrenadorPorNombre(request: AsignarEntrenadorPorNombreRequest): Mono<ActividadResponse> =
+        actividadRepository.findByNombre(request.actividad.trim())
+            .switchIfEmpty(Mono.error(NotFoundException("Actividad no encontrada")))
+            .zipWith(buscarEntrenadorPorNombreCompleto(request.entrenador))
+            .flatMap { tuple ->
+                val actividad = tuple.t1
+                val entrenador = tuple.t2
+                asignarEntrenador(
+                    requireNotNull(actividad.id) { "La actividad debe tener id" },
+                    AsignarEntrenadorRequest(requireNotNull(entrenador.id) { "El entrenador debe tener id" }),
+                )
+            }
+
     fun inscribir(id: Long, correo: String): Mono<InscripcionActividadResponse> =
         actividadRepository.findById(id)
             .switchIfEmpty(Mono.error(NotFoundException("Actividad no encontrada")))
@@ -166,7 +201,9 @@ class ActividadService(
                     .switchIfEmpty(Mono.error(NotFoundException("Usuario no encontrado")))
                     .flatMap { usuario ->
                         val usuarioId = requireNotNull(usuario.id) { "El usuario debe tener id" }
-                        inscripcionActividadRepository.existsByUsuarioIdAndActividadId(usuarioId, id)
+                        usuarioMembresiaRepository.findFirstByUsuarioIdAndEstado(usuarioId, "ACTIVA")
+                            .switchIfEmpty(Mono.error(BadRequestException("No cuentas con una membresia activa. Agrega una membresia para poder inscribirte a actividades.")))
+                            .then(inscripcionActividadRepository.existsByUsuarioIdAndActividadId(usuarioId, id))
                             .flatMap { existe ->
                                 if (existe) {
                                     Mono.error(ConflictException("Ya estas inscrito en esta actividad"))
@@ -182,7 +219,25 @@ class ActividadService(
                     }
             }
             .flatMap(::toResponse)
-            .map { actividad -> InscripcionActividadResponse("Inscripcion registrada", actividad) }
+            .map { actividad -> InscripcionActividadResponse("Ya cuentas con una membresia activa. Puedes inscribirte en las actividades que desees. Inscripcion registrada.", actividad) }
+
+    fun cancelarInscripcion(id: Long, correo: String): Mono<InscripcionActividadResponse> =
+        actividadRepository.findById(id)
+            .switchIfEmpty(Mono.error(NotFoundException("Actividad no encontrada")))
+            .flatMap { actividad ->
+                usuarioRepository.findByCorreo(correo)
+                    .switchIfEmpty(Mono.error(NotFoundException("Usuario no encontrado")))
+                    .flatMap { usuario ->
+                        val usuarioId = requireNotNull(usuario.id) { "El usuario debe tener id" }
+                        inscripcionActividadRepository.findByUsuarioIdAndActividadId(usuarioId, id)
+                            .switchIfEmpty(Mono.error(NotFoundException("No tienes inscripcion activa en esta actividad")))
+                            .flatMap { inscripcion ->
+                                inscripcionActividadRepository.delete(inscripcion).thenReturn(actividad)
+                            }
+                    }
+            }
+            .flatMap(::toResponse)
+            .map { actividad -> InscripcionActividadResponse("Inscripcion cancelada", actividad) }
 
     private fun normalizarEstado(estado: String?): String {
         val normalizado = estado?.trim()?.uppercase().takeUnless { it.isNullOrBlank() } ?: "PENDIENTE"
@@ -199,6 +254,18 @@ class ActividadService(
                 entrenadorRepository.findByUsuarioId(requireNotNull(usuario.id) { "El usuario debe tener id" })
                     .switchIfEmpty(Mono.error(NotFoundException("Perfil de entrenador no encontrado")))
             }
+
+    private fun buscarEntrenadorPorNombreCompleto(nombreCompleto: String): Mono<Entrenador> {
+        val buscado = nombreCompleto.trim().lowercase()
+        return entrenadorRepository.findAll()
+            .flatMap { entrenador ->
+                usuarioRepository.findById(entrenador.usuarioId)
+                    .filter { usuario -> "${usuario.nombre} ${usuario.apellido}".trim().lowercase() == buscado }
+                    .map { entrenador }
+            }
+            .next()
+            .switchIfEmpty(Mono.error(NotFoundException("Entrenador no encontrado")))
+    }
 
     private fun toResponse(actividad: Actividad): Mono<ActividadResponse> =
         actividadEntrenadorRepository.findByActividadId(requireNotNull(actividad.id) { "La actividad debe tener id" })

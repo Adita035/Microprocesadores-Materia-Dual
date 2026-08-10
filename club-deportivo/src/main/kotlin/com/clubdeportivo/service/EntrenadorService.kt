@@ -10,8 +10,16 @@ import com.clubdeportivo.exception.BadRequestException
 import com.clubdeportivo.exception.ConflictException
 import com.clubdeportivo.exception.NotFoundException
 import com.clubdeportivo.mapper.toResponse
+import com.clubdeportivo.repository.ActividadEntrenadorRepository
 import com.clubdeportivo.repository.EntrenadorRepository
+import com.clubdeportivo.repository.HorarioRepository
+import com.clubdeportivo.repository.IncidenciaRepository
+import com.clubdeportivo.repository.HistorialIncidenciaRepository
+import com.clubdeportivo.repository.InscripcionActividadRepository
 import com.clubdeportivo.repository.RolRepository
+import com.clubdeportivo.repository.SolicitudInstalacionRepository
+import com.clubdeportivo.repository.SolicitudMaterialRepository
+import com.clubdeportivo.repository.UsuarioMembresiaRepository
 import com.clubdeportivo.repository.UsuarioRepository
 import com.clubdeportivo.util.CorreoRolResolver
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -25,6 +33,15 @@ class EntrenadorService(
     private val usuarioRepository: UsuarioRepository,
     private val rolRepository: RolRepository,
     private val passwordEncoder: PasswordEncoder,
+    private val actividadEntrenadorRepository: ActividadEntrenadorRepository,
+    private val solicitudMaterialRepository: SolicitudMaterialRepository,
+    private val solicitudInstalacionRepository: SolicitudInstalacionRepository,
+    private val inscripcionActividadRepository: InscripcionActividadRepository,
+    private val usuarioMembresiaRepository: UsuarioMembresiaRepository,
+    private val horarioRepository: HorarioRepository,
+    private val incidenciaRepository: IncidenciaRepository,
+    private val historialIncidenciaRepository: HistorialIncidenciaRepository,
+    private val auditoriaService: AuditoriaService,
 ) {
 
     fun crear(request: CrearEntrenadorRequest): Mono<EntrenadorResponse> =
@@ -103,6 +120,40 @@ class EntrenadorService(
             }
             .flatMap(::toResponse)
 
+    fun eliminar(id: Long, correoAdmin: String): Mono<Void> =
+        entrenadorRepository.findById(id)
+            .switchIfEmpty(Mono.error(NotFoundException("Entrenador no encontrado")))
+            .flatMap { entrenador ->
+                val usuarioId = entrenador.usuarioId
+                usuarioRepository.findById(usuarioId)
+                    .switchIfEmpty(Mono.error(NotFoundException("Usuario del entrenador no encontrado")))
+                    .flatMap { usuario ->
+                        auditoriaService.registrarEliminacion(
+                            correoAdmin,
+                            "ENTRENADOR",
+                            "id=$id, usuarioId=$usuarioId, nombre=${usuario.nombre} ${usuario.apellido}, correo=${usuario.correo}",
+                        )
+                    }
+                    .then(
+                        solicitudMaterialRepository.findByEntrenadorId(id)
+                            .collectList()
+                            .flatMap { solicitudes -> solicitudMaterialRepository.deleteAll(solicitudes) },
+                    )
+                    .then(
+                        solicitudInstalacionRepository.findByEntrenadorId(id)
+                            .collectList()
+                            .flatMap { solicitudes -> solicitudInstalacionRepository.deleteAll(solicitudes) },
+                    )
+                    .then(
+                        actividadEntrenadorRepository.findByEntrenadorId(id)
+                            .collectList()
+                            .flatMap { asignaciones -> actividadEntrenadorRepository.deleteAll(asignaciones) },
+                    )
+                    .then(entrenadorRepository.delete(entrenador))
+                    .then(eliminarDependenciasDeUsuario(usuarioId))
+                    .then(usuarioRepository.deleteById(usuarioId))
+            }
+
     private fun obtenerUsuarioEntrenador(usuarioId: Long): Mono<Usuario> =
         usuarioRepository.findById(usuarioId)
             .switchIfEmpty(Mono.error(NotFoundException("Usuario no encontrado")))
@@ -126,4 +177,31 @@ class EntrenadorService(
                     .map { rol -> usuario.toResponse(rol) }
             }
             .map { usuarioResponse -> entrenador.toResponse(usuarioResponse) }
+
+    private fun eliminarDependenciasDeUsuario(usuarioId: Long): Mono<Void> =
+        inscripcionActividadRepository.findByUsuarioId(usuarioId)
+            .collectList()
+            .flatMap { inscripciones -> inscripcionActividadRepository.deleteAll(inscripciones) }
+            .then(
+                usuarioMembresiaRepository.findByUsuarioId(usuarioId)
+                    .collectList()
+                    .flatMap { membresias -> usuarioMembresiaRepository.deleteAll(membresias) },
+            )
+            .then(
+                horarioRepository.findByUsuarioId(usuarioId)
+                    .collectList()
+                    .flatMap { horarios -> horarioRepository.deleteAll(horarios) },
+            )
+            .then(eliminarIncidenciasDeUsuario(usuarioId))
+
+    private fun eliminarIncidenciasDeUsuario(usuarioId: Long): Mono<Void> =
+        incidenciaRepository.findByUsuarioId(usuarioId)
+            .flatMap { incidencia ->
+                val incidenciaId = requireNotNull(incidencia.id) { "La incidencia debe tener id" }
+                historialIncidenciaRepository.findByIncidenciaId(incidenciaId)
+                    .collectList()
+                    .flatMap { historial -> historialIncidenciaRepository.deleteAll(historial) }
+                    .then(incidenciaRepository.delete(incidencia))
+            }
+            .then()
 }

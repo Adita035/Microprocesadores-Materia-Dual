@@ -9,5 +9,6 @@ import reactor.core.publisher.Mono
 @Repository
 interface UsuarioMembresiaRepository : ReactiveCrudRepository<UsuarioMembresia, Long> {
     fun findByUsuarioId(usuarioId: Long): Flux<UsuarioMembresia>
+    fun findByMembresiaId(membresiaId: Long): Flux<UsuarioMembresia>
     fun findFirstByUsuarioIdAndEstado(usuarioId: Long, estado: String): Mono<UsuarioMembresia>
 }

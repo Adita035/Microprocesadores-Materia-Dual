@@ -8,9 +8,18 @@ import com.clubdeportivo.entity.Usuario
 import com.clubdeportivo.entity.UsuarioMembresia
 import com.clubdeportivo.exception.BadRequestException
 import com.clubdeportivo.exception.ConflictException
+import com.clubdeportivo.exception.NotFoundException
 import com.clubdeportivo.mapper.toResponse
 import com.clubdeportivo.repository.MembresiaRepository
+import com.clubdeportivo.repository.ActividadEntrenadorRepository
+import com.clubdeportivo.repository.EntrenadorRepository
+import com.clubdeportivo.repository.HistorialIncidenciaRepository
+import com.clubdeportivo.repository.HorarioRepository
+import com.clubdeportivo.repository.IncidenciaRepository
+import com.clubdeportivo.repository.InscripcionActividadRepository
 import com.clubdeportivo.repository.RolRepository
+import com.clubdeportivo.repository.SolicitudInstalacionRepository
+import com.clubdeportivo.repository.SolicitudMaterialRepository
 import com.clubdeportivo.repository.UsuarioMembresiaRepository
 import com.clubdeportivo.repository.UsuarioRepository
 import com.clubdeportivo.util.CorreoRolResolver
@@ -28,6 +37,15 @@ class UsuarioService(
     private val passwordEncoder: PasswordEncoder,
     private val usuarioMembresiaRepository: UsuarioMembresiaRepository,
     private val membresiaRepository: MembresiaRepository,
+    private val entrenadorRepository: EntrenadorRepository,
+    private val actividadEntrenadorRepository: ActividadEntrenadorRepository,
+    private val solicitudMaterialRepository: SolicitudMaterialRepository,
+    private val solicitudInstalacionRepository: SolicitudInstalacionRepository,
+    private val inscripcionActividadRepository: InscripcionActividadRepository,
+    private val horarioRepository: HorarioRepository,
+    private val incidenciaRepository: IncidenciaRepository,
+    private val historialIncidenciaRepository: HistorialIncidenciaRepository,
+    private val auditoriaService: AuditoriaService,
 ) {
     private val rolesPermitidos = setOf(
         "USUARIO",
@@ -82,18 +100,7 @@ class UsuarioService(
             }
 
     fun crearAdministradorAdicional(request: CrearAdminRequest): Mono<UsuarioResponse> =
-        Mono.fromCallable { CorreoRolResolver.validarRol(request.correo, "ADMINISTRADOR") }
-            .then(obtenerRolPermitido("ADMINISTRADOR"))
-            .flatMap { rol ->
-                crearUsuarioConRol(
-                    nombre = request.nombre,
-                    apellido = request.apellido,
-                    correo = request.correo,
-                    telefono = request.telefono,
-                    password = request.password,
-                    rol = rol,
-                )
-            }
+        Mono.error(BadRequestException("Los administradores se crean directamente en la base de datos"))
 
     fun registrarUsuarioPublico(request: CrearAdminRequest): Mono<UsuarioResponse> =
         Mono.fromCallable { CorreoRolResolver.validarRol(request.correo, "USUARIO") }
@@ -115,6 +122,9 @@ class UsuarioService(
             if (rolPorDominio == "USUARIO") {
                 throw BadRequestException("El administrador no puede crear usuarios normales")
             }
+            if (rolPorDominio == "ADMINISTRADOR") {
+                throw BadRequestException("Los administradores se crean directamente en la base de datos")
+            }
             request.rol?.takeUnless { it.isBlank() }?.let { rolSolicitado ->
                 if (rolSolicitado.trim().uppercase() != rolPorDominio) {
                     throw BadRequestException("El rol seleccionado no coincide con el dominio del correo")
@@ -132,6 +142,27 @@ class UsuarioService(
                     password = request.password,
                     rol = rol,
                 )
+            }
+
+    fun eliminar(id: Long, correoAdmin: String): Mono<Void> =
+        usuarioRepository.findById(id)
+            .switchIfEmpty(Mono.error(NotFoundException("Usuario no encontrado")))
+            .flatMap { usuario ->
+                rolRepository.findById(usuario.rolId)
+                    .switchIfEmpty(Mono.error(BadRequestException("El usuario no tiene rol valido")))
+                    .flatMap { rol ->
+                        if (rol.nombre == "ADMINISTRADOR") {
+                            Mono.error<Void>(BadRequestException("No se pueden eliminar administradores desde el sistema"))
+                        } else {
+                            auditoriaService.registrarEliminacion(
+                                correoAdmin,
+                                "USUARIO",
+                                "id=$id, nombre=${usuario.nombre} ${usuario.apellido}, correo=${usuario.correo}, rol=${rol.nombre}",
+                            )
+                                .then(eliminarDependenciasDeUsuario(id))
+                                .then(usuarioRepository.delete(usuario))
+                        }
+                    }
             }
 
     private fun crearUsuarioConRol(
@@ -210,4 +241,51 @@ class UsuarioService(
 
     private fun calcularDiasParaRenovar(fechaFin: LocalDate?): Long? =
         fechaFin?.let { ChronoUnit.DAYS.between(LocalDate.now(), it).coerceAtLeast(0) }
+
+    private fun eliminarDependenciasDeUsuario(usuarioId: Long): Mono<Void> =
+        entrenadorRepository.findByUsuarioId(usuarioId)
+            .flatMap { entrenador ->
+                val entrenadorId = requireNotNull(entrenador.id) { "El entrenador debe tener id" }
+                solicitudMaterialRepository.findByEntrenadorId(entrenadorId)
+                    .collectList()
+                    .flatMap { solicitudes -> solicitudMaterialRepository.deleteAll(solicitudes) }
+                    .then(
+                        solicitudInstalacionRepository.findByEntrenadorId(entrenadorId)
+                            .collectList()
+                            .flatMap { solicitudes -> solicitudInstalacionRepository.deleteAll(solicitudes) },
+                    )
+                    .then(
+                        actividadEntrenadorRepository.findByEntrenadorId(entrenadorId)
+                            .collectList()
+                            .flatMap { asignaciones -> actividadEntrenadorRepository.deleteAll(asignaciones) },
+                    )
+                    .then(entrenadorRepository.delete(entrenador))
+            }
+            .then(
+                inscripcionActividadRepository.findByUsuarioId(usuarioId)
+                    .collectList()
+                    .flatMap { inscripciones -> inscripcionActividadRepository.deleteAll(inscripciones) },
+            )
+            .then(
+                usuarioMembresiaRepository.findByUsuarioId(usuarioId)
+                    .collectList()
+                    .flatMap { membresias -> usuarioMembresiaRepository.deleteAll(membresias) },
+            )
+            .then(
+                horarioRepository.findByUsuarioId(usuarioId)
+                    .collectList()
+                    .flatMap { horarios -> horarioRepository.deleteAll(horarios) },
+            )
+            .then(eliminarIncidenciasDeUsuario(usuarioId))
+
+    private fun eliminarIncidenciasDeUsuario(usuarioId: Long): Mono<Void> =
+        incidenciaRepository.findByUsuarioId(usuarioId)
+            .flatMap { incidencia ->
+                val incidenciaId = requireNotNull(incidencia.id) { "La incidencia debe tener id" }
+                historialIncidenciaRepository.findByIncidenciaId(incidenciaId)
+                    .collectList()
+                    .flatMap { historial -> historialIncidenciaRepository.deleteAll(historial) }
+                    .then(incidenciaRepository.delete(incidencia))
+            }
+            .then()
 }
