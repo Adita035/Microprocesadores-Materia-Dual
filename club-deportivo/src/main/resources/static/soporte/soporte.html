@@ -89,7 +89,8 @@
                             <option value="CANCELADA">CANCELADA</option>
                         </select>
                     </label>
-                    <button type="submit" class="button primary">Actualizar estado</button>
+                    <label>Comentario opcional<textarea name="comentario" rows="4" placeholder="Describe el avance o solucion aplicada"></textarea></label>
+                    <button type="submit" class="button primary">Actualizar incidencia</button>
                 </form>
             </div>
 
@@ -97,16 +98,14 @@
                 <div class="panelHeader">
                     <div>
                         <p class="eyebrow">Historial</p>
-                        <h2>Agregar comentario</h2>
+                        <h2>Comentarios guardados</h2>
                     </div>
-                    <span class="pill coral">Seguimiento</span>
+                    <button id="showIncidentHistoryBtn" type="button" class="button compact">Mostrar historial</button>
                 </div>
 
-                <form id="incidentCommentForm" class="form">
-                    <label>ID incidencia<input name="incidenciaId" type="number" min="1" required></label>
-                    <label>Comentario<input name="comentario" required placeholder="Describe el avance o solucion aplicada"></label>
-                    <button type="submit" class="button success">Guardar comentario</button>
-                </form>
+                <div id="incidentHistoryPanel" class="resultGrid compactHistory">
+                    <article class="emptyState">Usa el boton para consultar incidencias resueltas.</article>
+                </div>
             </div>
         </section>
 

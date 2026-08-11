@@ -7,6 +7,9 @@ const incidentCount = document.querySelector("#incidentCount");
 const pendingIncidentCount = document.querySelector("#pendingIncidentCount");
 const resolvedIncidentCount = document.querySelector("#resolvedIncidentCount");
 const supportScheduleGrid = document.querySelector("#supportScheduleGrid");
+const incidentHistoryPanel = document.querySelector("#incidentHistoryPanel");
+let latestIncidents = [];
+let historyVisible = false;
 
 function getToken() {
     return localStorage.getItem(tokenKey) || "";
@@ -85,26 +88,28 @@ function formatDateTime(value) {
 }
 
 function renderIncidents(incidents) {
+    const activeIncidents = incidents.filter((item) => item.estado !== "RESUELTA");
     incidentCount.textContent = incidents.length;
     pendingIncidentCount.textContent = incidents.filter((item) => item.estado === "PENDIENTE" || item.estado === "EN_PROCESO").length;
     resolvedIncidentCount.textContent = incidents.filter((item) => item.estado === "RESUELTA").length;
 
-    if (!incidents.length) {
+    if (!activeIncidents.length) {
         supportIncidentsPanel.innerHTML = `
             <article class="resultEmpty">
                 <span class="moduleIcon">0</span>
                 <div>
-                    <h3>No hay incidencias</h3>
-                    <p>Cuando un usuario reporte un problema, aparecera en esta vista.</p>
+                    <h3>No hay incidencias activas</h3>
+                    <p>Las incidencias resueltas se conservan en el historial.</p>
                 </div>
             </article>
         `;
+        if (historyVisible) renderIncidentHistory(incidents);
         return;
     }
 
     supportIncidentsPanel.innerHTML = `
         <div class="resultGrid">
-            ${incidents.map((incident) => `
+            ${activeIncidents.map((incident) => `
                 <article class="resultCard">
                     <div class="resultCardHeader">
                         <div>
@@ -124,6 +129,7 @@ function renderIncidents(incidents) {
             `).join("")}
         </div>
     `;
+    if (historyVisible) renderIncidentHistory(incidents);
 }
 
 function renderHistory(history) {
@@ -136,6 +142,38 @@ function renderHistory(history) {
             ${history.map((item) => `<span>${formatDateTime(item.fecha)}: ${item.comentario}</span>`).join("")}
         </div>
     `;
+}
+
+function renderIncidentHistory(incidents) {
+    const resolvedIncidents = incidents.filter((incident) => incident.estado === "RESUELTA");
+    const history = resolvedIncidents.flatMap((incident) =>
+        (incident.historial || []).map((item) => ({
+            ...item,
+            incidenciaId: incident.id,
+            titulo: incident.titulo || "Incidencia sin titulo",
+            estado: incident.estado,
+        })),
+    );
+
+    if (!history.length) {
+        incidentHistoryPanel.innerHTML = '<article class="emptyState">Aun no hay incidencias resueltas con historial guardado.</article>';
+        return;
+    }
+
+    incidentHistoryPanel.innerHTML = history
+        .sort((a, b) => String(b.fecha || "").localeCompare(String(a.fecha || "")))
+        .map((item) => `
+            <article class="resultCard">
+                <div class="resultCardHeader">
+                    <div>
+                        <p class="eyebrow">Incidencia ${item.incidenciaId} - ${item.estado}</p>
+                        <h3>${item.titulo}</h3>
+                    </div>
+                    <span class="pill green">${formatDateTime(item.fecha)}</span>
+                </div>
+                <p>${item.comentario || "Sin comentario"}</p>
+            </article>
+        `).join("");
 }
 
 function renderSchedule(schedules) {
@@ -164,7 +202,8 @@ function renderSchedule(schedules) {
 async function loadIncidents() {
     const result = await request("/api/incidencias");
     if (result.ok) {
-        renderIncidents(result.body || []);
+        latestIncidents = result.body || [];
+        renderIncidents(latestIncidents);
         return;
     }
     supportIncidentsPanel.innerHTML = `<article class="emptyState">${result.body?.mensaje || "No se pudieron cargar las incidencias."}</article>`;
@@ -184,11 +223,14 @@ async function updateIncidentStatus(event) {
     const data = formToJson(event.currentTarget);
     const result = await request(`/api/incidencias/${data.incidenciaId}/estado`, {
         method: "PATCH",
-        body: { estado: data.estado },
+        body: {
+            estado: data.estado,
+            comentario: data.comentario,
+        },
     });
 
     if (result.ok) {
-        showToast("Estado de incidencia actualizado.");
+        showToast(data.comentario ? "Estado actualizado y comentario guardado." : "Estado de incidencia actualizado.");
         event.currentTarget.reset();
         await loadIncidents();
         return;
@@ -196,27 +238,14 @@ async function updateIncidentStatus(event) {
     showToast(result.body?.mensaje || "No se pudo actualizar la incidencia.");
 }
 
-async function addIncidentComment(event) {
-    event.preventDefault();
-    const data = formToJson(event.currentTarget);
-    const result = await request(`/api/incidencias/${data.incidenciaId}/comentarios`, {
-        method: "POST",
-        body: { comentario: data.comentario },
-    });
-
-    if (result.ok) {
-        showToast("Comentario agregado correctamente.");
-        event.currentTarget.reset();
-        await loadIncidents();
-        return;
-    }
-    showToast(result.body?.mensaje || "No se pudo agregar el comentario.");
-}
-
 document.querySelector("#reloadIncidentsBtn").addEventListener("click", loadIncidents);
+document.querySelector("#showIncidentHistoryBtn").addEventListener("click", async () => {
+    historyVisible = true;
+    await loadIncidents();
+    renderIncidentHistory(latestIncidents);
+});
 document.querySelector("#reloadSupportScheduleBtn").addEventListener("click", loadSchedule);
 document.querySelector("#incidentStatusForm").addEventListener("submit", updateIncidentStatus);
-document.querySelector("#incidentCommentForm").addEventListener("submit", addIncidentComment);
 document.querySelector("#supportLogoutBtn").addEventListener("click", () => {
     localStorage.removeItem(tokenKey);
     localStorage.removeItem(userKey);

@@ -57,6 +57,20 @@ class IncidenciaService(
         return incidenciaRepository.findById(id)
             .switchIfEmpty(Mono.error(NotFoundException("Incidencia no encontrada")))
             .flatMap { incidencia -> incidenciaRepository.save(incidencia.copy(estado = estado)) }
+            .flatMap { incidencia ->
+                val comentario = request.comentario?.trim()
+                val seguimiento = if (comentario.isNullOrBlank()) {
+                    "Estado actualizado a $estado"
+                } else {
+                    "Estado actualizado a $estado. $comentario"
+                }
+                historialIncidenciaRepository.save(
+                    HistorialIncidencia(
+                        incidenciaId = requireNotNull(incidencia.id) { "La incidencia debe tener id" },
+                        comentario = seguimiento,
+                    ),
+                ).thenReturn(incidencia)
+            }
             .flatMap(::toResponse)
     }
 
@@ -64,12 +78,17 @@ class IncidenciaService(
         incidenciaRepository.findById(id)
             .switchIfEmpty(Mono.error(NotFoundException("Incidencia no encontrada")))
             .flatMap { incidencia ->
-                historialIncidenciaRepository.save(
-                    HistorialIncidencia(
-                        incidenciaId = requireNotNull(incidencia.id) { "La incidencia debe tener id" },
-                        comentario = request.comentario.trim(),
-                    ),
-                ).thenReturn(incidencia)
+                val comentario = request.comentario?.trim()
+                if (comentario.isNullOrBlank()) {
+                    Mono.just(incidencia)
+                } else {
+                    historialIncidenciaRepository.save(
+                        HistorialIncidencia(
+                            incidenciaId = requireNotNull(incidencia.id) { "La incidencia debe tener id" },
+                            comentario = comentario,
+                        ),
+                    ).thenReturn(incidencia)
+                }
             }
             .flatMap(::toResponse)
 

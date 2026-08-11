@@ -14,11 +14,12 @@ data class CrearIncidenciaRequest(
 data class ActualizarEstadoIncidenciaRequest(
     @field:NotBlank
     val estado: String,
+
+    val comentario: String? = null,
 )
 
 data class AgregarComentarioIncidenciaRequest(
-    @field:NotBlank
-    val comentario: String,
+    val comentario: String? = null,
 )
 
 data class HistorialIncidenciaResponse(
