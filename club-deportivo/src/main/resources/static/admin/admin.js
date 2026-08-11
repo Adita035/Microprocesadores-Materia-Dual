@@ -14,6 +14,7 @@ const deleteConfirmMessage = document.querySelector("#deleteConfirmMessage");
 const confirmDeleteBtn = document.querySelector("#confirmDeleteBtn");
 const deleteTypeSelect = document.querySelector("#deleteTypeSelect");
 const deleteItemSelect = document.querySelector("#deleteItemSelect");
+const adminLogoutBtn = document.querySelector("#adminLogoutBtn");
 let adminHeroSlideIndex = 0;
 let pendingDelete = null;
 let deleteCatalogs = {
@@ -52,6 +53,12 @@ function renderToken() {
     const user = getUser();
     sessionStatus.textContent = token ? (user ? `${user.nombre} ${user.apellido}` : "Token activo") : "Sin sesion";
     sessionCard.classList.toggle("active", Boolean(token));
+}
+
+function logoutAdmin() {
+    localStorage.removeItem(tokenKey);
+    localStorage.removeItem(userKey);
+    window.location.href = "/";
 }
 
 function moveAdminHeroSlide(direction) {
@@ -616,6 +623,7 @@ document.querySelector("#availableFacilitiesBtn").addEventListener("click", () =
 
 document.querySelector("#prevAdminHeroSlideBtn").addEventListener("click", () => moveAdminHeroSlide(-1));
 document.querySelector("#nextAdminHeroSlideBtn").addEventListener("click", () => moveAdminHeroSlide(1));
+adminLogoutBtn.addEventListener("click", logoutAdmin);
 
 output.addEventListener("click", (event) => {
     const button = event.target.closest("[data-delete-type]");
