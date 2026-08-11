@@ -66,6 +66,7 @@ function renderSession() {
     publicUserBadge.classList.toggle("hidden", !hasSession);
     logoutBtn.classList.toggle("hidden", !hasSession);
     openAuthBtn.classList.toggle("hidden", hasSession);
+    document.querySelector("#adminAccessBtn").textContent = isAdmin ? "Panel admin" : "Administracion";
     myActivitiesBtn.classList.toggle("hidden", isAdmin);
     heroMyActivitiesBtn.classList.toggle("hidden", isAdmin);
     myActivitiesSection.classList.toggle("hidden", isAdmin);

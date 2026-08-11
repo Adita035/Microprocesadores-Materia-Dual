@@ -179,6 +179,15 @@ p {
     box-shadow: 0 0 18px rgba(92, 189, 115, 0.85);
 }
 
+.sidebarActions {
+    display: grid;
+    gap: 10px;
+}
+
+.sidebarActions .button {
+    width: 100%;
+}
+
 .shell {
     width: min(1480px, calc(100% - 320px));
     margin-left: 280px;
@@ -746,6 +755,12 @@ textarea:focus {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
+}
+
+.compactHistory {
+    grid-template-columns: 1fr;
+    max-height: 360px;
+    overflow: auto;
 }
 
 .resultCard {
