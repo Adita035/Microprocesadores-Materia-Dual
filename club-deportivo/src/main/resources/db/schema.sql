@@ -113,14 +113,6 @@ CREATE TABLE IF NOT EXISTS historial_incidencias (
     FOREIGN KEY (incidencia_id) REFERENCES incidencias(id)
 );
 
-CREATE TABLE IF NOT EXISTS reportes (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    tipo VARCHAR(50),
-    fecha_generacion DATETIME DEFAULT CURRENT_TIMESTAMP,
-    generado_por BIGINT,
-    FOREIGN KEY (generado_por) REFERENCES usuarios(id)
-);
-
 CREATE TABLE IF NOT EXISTS membresias (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100),
