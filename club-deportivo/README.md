@@ -13,6 +13,7 @@ La plataforma permite que cada tipo de usuario acceda únicamente a las funcione
 - `TRABAJADOR`: consulta operativa de materiales, instalaciones, solicitudes y horarios.
 - `SOPORTE_TECNICO`: seguimiento de incidencias, actualización de estados y comentarios.
 - `USUARIO`: consulta pública, selección de membresía e inscripción a actividades.
+- `Contraseña`:123456
 
 ## Tecnologías
 
@@ -293,8 +294,6 @@ El sistema usa una base de datos relacional con las siguientes tablas principale
 - `incidencias`
 - `historial_incidencias`
 - `horarios`
-- `asistencias`
-- `reportes`
 - `auditoria`
 
 Los scripts de creación e inicialización están en:
@@ -335,18 +334,6 @@ CREATE DATABASE club_deportivo;
 - MySQL en ejecución
 - Base de datos `club_deportivo`
 
-### Windows
-
-```powershell
-.\gradlew.bat bootRun
-```
-
-### Linux/macOS
-
-```bash
-./gradlew bootRun
-```
-
 La aplicación queda disponible en:
 
 ```text
@@ -361,4 +348,4 @@ El sistema se encuentra en desarrollo funcional. Actualmente cuenta con módulos
 
 ## Autor
 
-Proyecto desarrollado por Adair Gámez Jiménez para la materia de Microprocesadores.
+Proyecto desarrollado por Adair Gámez Jiménez.
